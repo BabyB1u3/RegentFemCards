@@ -28,7 +28,7 @@ internal static class PortraitReplacementRegistry
         ["KinglyKick"] = "res://RegentFemCards/CardPortraits/Regent/KinglyKick.png",
         ["KinglyPunch"] = "res://RegentFemCards/CardPortraits/Regent/KinglyPunch.png",
         ["MakeItSo"] = "res://RegentFemCards/CardPortraits/Regent/MakeItSo.png",
-        ["ManifestAuthority"] = "res://RegentFemCards/CardPortraits/Regent/MenifestAuthority.png",
+        ["ManifestAuthority"] = "res://RegentFemCards/CardPortraits/Regent/ManifestAuthority.png",
         ["MonarchsGaze"] = "res://RegentFemCards/CardPortraits/Regent/MonarchsGaze.png",
         ["NeutronAegis"] = "res://RegentFemCards/CardPortraits/Regent/NeutronAegis.png",
         ["Parry"] = "res://RegentFemCards/CardPortraits/Regent/Parry.png",
