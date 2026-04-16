@@ -8,10 +8,16 @@ This repository is being reshaped from a single portrait-replacement mod into a 
   Reference implementation of an existing portrait replacement mod.
 - `templates/PortraitReplacementTemplate/`
   Clean reusable template for generated mods.
+- `data/official_card_index.json`
+  Pre-generated official release-card index used as baseline matching data.
 - `tools/PortraitModGenerator.Core/`
   Core library for template-based mod generation.
+- `tools/PortraitModGenerator.Cli/`
+  CLI entry point for import, scan, and generation workflows.
 - `docs/MOD_GENERATOR_DESIGN.md`
   Detailed design document for the generator architecture.
+- `docs/OFFICIAL_CARD_INDEX.md`
+  Notes about the built-in official card index dataset.
 
 ## Current direction
 
@@ -30,13 +36,14 @@ Already done:
 
 - Extracted a reusable `PortraitReplacementTemplate`.
 - Cleaned the template so it no longer carries the current mod's real portrait assets or mappings.
-- Added `PortraitModGenerator.Core` with minimal template generation logic.
+- Added `PortraitModGenerator.Core` with template generation, GDRE recover import, and asset scanning.
+- Added `PortraitModGenerator.Cli` with `generate-template`, `import-pck`, and `scan-assets`.
+- Added a pre-generated `official_card_index.json` baseline for authoritative card ids.
 
 Not done yet:
 
-- CLI entry point
-- PCK import pipeline
-- Asset scanning and normalization
+- Matching imported assets against the official card index
+- Candidate mapping generation and review flow
 - Mapping editor UI
 - End-to-end build pipeline for generated mods
 
