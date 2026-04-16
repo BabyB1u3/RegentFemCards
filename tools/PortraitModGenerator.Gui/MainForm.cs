@@ -19,6 +19,7 @@ public sealed class MainForm : Form
     private readonly Button _saveAnalysisButton;
     private readonly Label _analysisPathLabel;
     private readonly Label _importStatusLabel;
+    private readonly ProgressBar _importProgressBar;
     private readonly ComboBox _filterComboBox;
     private readonly TextBox _searchTextBox;
     private readonly ListBox _assetListBox;
@@ -40,6 +41,7 @@ public sealed class MainForm : Form
     private readonly Button _updateMappingButton;
     private readonly Button _generateModButton;
     private readonly Label _generationStatusLabel;
+    private readonly ProgressBar _buildProgressBar;
     private readonly Panel _detailsPanel;
 
     private string? _analysisPath;
@@ -62,9 +64,10 @@ public sealed class MainForm : Form
         {
             Dock = DockStyle.Fill,
             ColumnCount = 1,
-            RowCount = 4,
+            RowCount = 5,
             Padding = new Padding(12)
         };
+        rootLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         rootLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         rootLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         rootLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
@@ -84,7 +87,7 @@ public sealed class MainForm : Form
             Text = "Import PCK",
             AutoSize = true
         };
-        _loadAnalysisButton.Click += (_, _) => ImportPckFromDialog();
+        _loadAnalysisButton.Click += async (_, _) => await ImportPckFromDialogAsync();
         toolbar.Controls.Add(_loadAnalysisButton);
 
         _importPckButton = new Button
@@ -145,12 +148,23 @@ public sealed class MainForm : Form
         };
         rootLayout.Controls.Add(_importStatusLabel, 0, 2);
 
+        _importProgressBar = new ProgressBar
+        {
+            Dock = DockStyle.Top,
+            Height = 18,
+            Style = ProgressBarStyle.Marquee,
+            MarqueeAnimationSpeed = 24,
+            Visible = false,
+            Margin = new Padding(0, 0, 0, 8)
+        };
+        rootLayout.Controls.Add(_importProgressBar, 0, 3);
+
         SplitContainer contentSplit = new()
         {
             Dock = DockStyle.Fill,
             SplitterDistance = 700
         };
-        rootLayout.Controls.Add(contentSplit, 0, 3);
+        rootLayout.Controls.Add(contentSplit, 0, 4);
         Shown += (_, _) =>
         {
             int availableWidth = contentSplit.ClientSize.Width;
@@ -358,12 +372,24 @@ public sealed class MainForm : Form
             Text = "Build Mod",
             AutoSize = true
         };
-        _generateModButton.Click += (_, _) => GenerateModProject();
+        _generateModButton.Click += async (_, _) => await GenerateModProjectAsync();
         generatePanel.Controls.Add(_generateModButton);
 
         _generationStatusLabel = CreateInfoLabel();
         _generationStatusLabel.Text = "Import a PCK, review mappings, then build the final mod output here.";
         generatePanel.Controls.Add(_generationStatusLabel);
+
+        _buildProgressBar = new ProgressBar
+        {
+            Dock = DockStyle.Top,
+            Height = 18,
+            Style = ProgressBarStyle.Marquee,
+            MarqueeAnimationSpeed = 24,
+            Visible = false,
+            Margin = new Padding(0, 8, 0, 0)
+        };
+        generationLayout.Controls.Add(_buildProgressBar, 0, 6);
+        generationLayout.SetColumnSpan(_buildProgressBar, 3);
 
         _analysisPathLabel.Text = "Import a portrait PCK to begin review.";
         _importStatusLabel.Text = $"GDRE: {AppPaths.GdreToolsPath} | Cache: {AppPaths.CacheRoot}";
@@ -417,7 +443,7 @@ public sealed class MainForm : Form
         }
     }
 
-    private void ImportPckFromDialog()
+    private async Task ImportPckFromDialogAsync()
     {
         using OpenFileDialog dialog = new()
         {
@@ -427,7 +453,7 @@ public sealed class MainForm : Form
 
         if (dialog.ShowDialog(this) == DialogResult.OK)
         {
-            ImportPck(dialog.FileName);
+            await ImportPckAsync(dialog.FileName);
         }
     }
 
@@ -438,7 +464,7 @@ public sealed class MainForm : Form
             : DragDropEffects.None;
     }
 
-    private void HandlePckDragDrop(object? sender, DragEventArgs eventArgs)
+    private async void HandlePckDragDrop(object? sender, DragEventArgs eventArgs)
     {
         string[] pckPaths = GetDroppedPckPaths(eventArgs.Data);
         if (pckPaths.Length == 0)
@@ -456,7 +482,7 @@ public sealed class MainForm : Form
                 MessageBoxIcon.Information);
         }
 
-        ImportPck(pckPaths[0]);
+        await ImportPckAsync(pckPaths[0]);
     }
 
     private void EnablePckDragDrop(Control control)
@@ -490,7 +516,7 @@ public sealed class MainForm : Form
             .ToArray();
     }
 
-    private void ImportPck(string pckPath)
+    private async Task ImportPckAsync(string pckPath)
     {
         string gdreToolsPath = AppPaths.GdreToolsPath;
         if (!File.Exists(gdreToolsPath))
@@ -510,37 +536,45 @@ public sealed class MainForm : Form
         string recoverRoot = Path.Combine(sessionRoot, "recover");
         string scanJsonPath = Path.Combine(sessionRoot, "asset_scan_result.json");
         string mappingJsonPath = Path.Combine(sessionRoot, "mapping_analysis_result.json");
+        string suggestedModId = SanitizeModId(Path.GetFileNameWithoutExtension(sourcePckPath));
 
         try
         {
             UseWaitCursor = true;
             TogglePrimaryActions(enabled: false);
-            _importStatusLabel.Text = $"Importing {Path.GetFileName(sourcePckPath)} into {sessionRoot}";
+            SetImportBusy(true, $"Importing {Path.GetFileName(sourcePckPath)} into {sessionRoot}");
 
-            Directory.CreateDirectory(sessionRoot);
-
-            GdrePckImporter importer = new();
-            importer.Import(new PckImportRequest
+            IProgress<string> progress = new Progress<string>(status => _importStatusLabel.Text = status);
+            await Task.Run(() =>
             {
-                SourcePckPath = sourcePckPath,
-                OutputDirectory = recoverRoot,
-                GdreToolsPath = gdreToolsPath,
-                OverwriteOutput = true
-            });
+                Directory.CreateDirectory(sessionRoot);
 
-            AssetScanner scanner = new();
-            scanner.Scan(new AssetScanRequest
-            {
-                InputDirectory = recoverRoot,
-                OutputJsonPath = scanJsonPath
-            });
+                progress.Report($"Recovering {Path.GetFileName(sourcePckPath)}");
+                GdrePckImporter importer = new();
+                importer.Import(new PckImportRequest
+                {
+                    SourcePckPath = sourcePckPath,
+                    OutputDirectory = recoverRoot,
+                    GdreToolsPath = gdreToolsPath,
+                    OverwriteOutput = true
+                });
 
-            MappingAnalyzer analyzer = new();
-            analyzer.Analyze(new MappingAnalysisRequest
-            {
-                ScanResultPath = scanJsonPath,
-                OfficialCardIndexPath = AppPaths.OfficialCardIndexPath,
-                OutputJsonPath = mappingJsonPath
+                progress.Report("Scanning extracted images");
+                AssetScanner scanner = new();
+                scanner.Scan(new AssetScanRequest
+                {
+                    InputDirectory = recoverRoot,
+                    OutputJsonPath = scanJsonPath
+                });
+
+                progress.Report("Analyzing mapping candidates");
+                MappingAnalyzer analyzer = new();
+                analyzer.Analyze(new MappingAnalysisRequest
+                {
+                    ScanResultPath = scanJsonPath,
+                    OfficialCardIndexPath = AppPaths.OfficialCardIndexPath,
+                    OutputJsonPath = mappingJsonPath
+                });
             });
 
             LoadAnalysis(mappingJsonPath);
@@ -548,7 +582,6 @@ public sealed class MainForm : Form
 
             if (string.IsNullOrWhiteSpace(_modIdTextBox.Text) || string.Equals(_modIdTextBox.Text, "GeneratedPortraitMod", StringComparison.Ordinal))
             {
-                string suggestedModId = SanitizeModId(Path.GetFileNameWithoutExtension(sourcePckPath));
                 _modIdTextBox.Text = suggestedModId;
                 _modNameTextBox.Text = suggestedModId;
             }
@@ -560,6 +593,7 @@ public sealed class MainForm : Form
         }
         finally
         {
+            SetImportBusy(false);
             TogglePrimaryActions(enabled: true);
             UseWaitCursor = false;
         }
@@ -600,7 +634,26 @@ public sealed class MainForm : Form
     {
         _loadAnalysisButton.Enabled = enabled;
         _generateModButton.Enabled = enabled;
+        _browseOutputButton.Enabled = enabled;
         _updateMappingButton.Enabled = enabled && _assetListBox.SelectedItem is ReviewCandidate && _cardComboBox.SelectedItem is CardChoice;
+    }
+
+    private void SetImportBusy(bool busy, string? statusText = null)
+    {
+        _importProgressBar.Visible = busy;
+        if (statusText is not null)
+        {
+            _importStatusLabel.Text = statusText;
+        }
+    }
+
+    private void SetBuildBusy(bool busy, string? statusText = null)
+    {
+        _buildProgressBar.Visible = busy;
+        if (statusText is not null)
+        {
+            _generationStatusLabel.Text = statusText;
+        }
     }
 
     private void LoadOfficialCards(string officialCardIndexPath)
@@ -1096,7 +1149,7 @@ public sealed class MainForm : Form
         }
     }
 
-    private void GenerateModProject()
+    private async Task GenerateModProjectAsync()
     {
         if (_session is null || string.IsNullOrWhiteSpace(_officialCardIndexPath))
         {
@@ -1152,50 +1205,59 @@ public sealed class MainForm : Form
         {
             UseWaitCursor = true;
             TogglePrimaryActions(enabled: false);
+            SetBuildBusy(true, "Preparing mod build...");
 
             Directory.CreateDirectory(Path.GetFullPath(artifactOutputParent));
 
-            TemplateProjectGenerator templateGenerator = new();
-            TemplateGenerationResult generationResult = templateGenerator.Generate(new TemplateGenerationRequest
+            IProgress<string> progress = new Progress<string>(status => _generationStatusLabel.Text = status);
+            ModBuildResult buildResult = await Task.Run(() =>
             {
-                TemplateDirectory = templateDirectory,
-                OutputDirectory = sourceGenerationRoot,
-                OverwriteExistingOutput = true,
-                TokenValues = new Dictionary<string, string>(StringComparer.Ordinal)
+                progress.Report("Generating cached source tree");
+                TemplateProjectGenerator templateGenerator = new();
+                TemplateGenerationResult generationResult = templateGenerator.Generate(new TemplateGenerationRequest
                 {
-                    ["__MOD_ID__"] = modId,
-                    ["__MOD_NAME__"] = string.IsNullOrWhiteSpace(modName) ? modId : modName,
-                    ["__AUTHOR__"] = string.IsNullOrWhiteSpace(author) ? "Unknown Author" : author,
-                    ["__DESCRIPTION__"] = string.IsNullOrWhiteSpace(description) ? "Generated portrait replacement mod" : description,
-                    ["__VERSION__"] = "v0.1.0"
-                }
-            });
+                    TemplateDirectory = templateDirectory,
+                    OutputDirectory = sourceGenerationRoot,
+                    OverwriteExistingOutput = true,
+                    TokenValues = new Dictionary<string, string>(StringComparer.Ordinal)
+                    {
+                        ["__MOD_ID__"] = modId,
+                        ["__MOD_NAME__"] = string.IsNullOrWhiteSpace(modName) ? modId : modName,
+                        ["__AUTHOR__"] = string.IsNullOrWhiteSpace(author) ? "Unknown Author" : author,
+                        ["__DESCRIPTION__"] = string.IsNullOrWhiteSpace(description) ? "Generated portrait replacement mod" : description,
+                        ["__VERSION__"] = "v0.1.0"
+                    }
+                });
 
-            ReviewSession review = _session with
-            {
-                OfficialCardIndexPath = _officialCardIndexPath,
-                OutputJsonPath = reviewPath,
-                MatchedAssets = _session.Candidates.Count(candidate => !string.IsNullOrWhiteSpace(candidate.MatchedCardId)),
-                IgnoredAssets = _session.Candidates.Count(candidate => candidate.Ignored),
-                Candidates = _session.Candidates
-            };
-            File.WriteAllText(reviewPath, JsonSerializer.Serialize(review, JsonOptions));
+                progress.Report("Writing reviewed mapping data");
+                ReviewSession review = _session with
+                {
+                    OfficialCardIndexPath = _officialCardIndexPath,
+                    OutputJsonPath = reviewPath,
+                    MatchedAssets = _session.Candidates.Count(candidate => !string.IsNullOrWhiteSpace(candidate.MatchedCardId)),
+                    IgnoredAssets = _session.Candidates.Count(candidate => candidate.Ignored),
+                    Candidates = _session.Candidates
+                };
+                File.WriteAllText(reviewPath, JsonSerializer.Serialize(review, JsonOptions));
 
-            MappingMaterializer materializer = new();
-            MaterializeMappingsResult result = materializer.Materialize(new MaterializeMappingsRequest
-            {
-                MappingAnalysisPath = reviewPath,
-                ModProjectRoot = sourceGenerationRoot,
-                ModId = modId
-            });
+                progress.Report("Materializing portraits and config");
+                MappingMaterializer materializer = new();
+                materializer.Materialize(new MaterializeMappingsRequest
+                {
+                    MappingAnalysisPath = reviewPath,
+                    ModProjectRoot = sourceGenerationRoot,
+                    ModId = modId
+                });
 
-            ModBuildService buildService = new();
-            ModBuildResult buildResult = buildService.Build(new ModBuildRequest
-            {
-                ProjectFilePath = generationResult.EntryProjectPath,
-                ArtifactOutputDirectory = artifactOutputDirectory,
-                LogFilePath = buildLogPath,
-                DotnetCliHome = AppPaths.DotnetCliHome
+                progress.Report("Building final mod artifacts");
+                ModBuildService buildService = new();
+                return buildService.Build(new ModBuildRequest
+                {
+                    ProjectFilePath = generationResult.EntryProjectPath,
+                    ArtifactOutputDirectory = artifactOutputDirectory,
+                    LogFilePath = buildLogPath,
+                    DotnetCliHome = AppPaths.DotnetCliHome
+                });
             });
 
             _generationStatusLabel.Text = $"Built mod to {artifactOutputDirectory}";
@@ -1216,6 +1278,7 @@ public sealed class MainForm : Form
         }
         finally
         {
+            SetBuildBusy(false);
             TogglePrimaryActions(enabled: true);
             UseWaitCursor = false;
         }
