@@ -50,8 +50,8 @@ public sealed class TemplateProjectGenerator
         PrepareOutputDirectory(outputDirectory, request.OverwriteExistingOutput);
         CopyDirectory(sourceRoot, outputDirectory, manifest, resolvedTokenValues);
 
-        string entryProjectPath = Path.Combine(outputDirectory, ReplaceRenameTokens(manifest.EntryProject, manifest, resolvedTokenValues));
-        string manifestPath = Path.Combine(outputDirectory, ReplaceRenameTokens(manifest.ManifestFile, manifest, resolvedTokenValues));
+        string entryProjectPath = ResolveOutputPath(outputDirectory, manifest.EntryProject, manifest, resolvedTokenValues);
+        string manifestPath = ResolveOutputPath(outputDirectory, manifest.ManifestFile, manifest, resolvedTokenValues);
 
         return new TemplateGenerationResult
         {
@@ -146,6 +146,28 @@ public sealed class TemplateProjectGenerator
         }
 
         return result;
+    }
+
+    private static string ResolveOutputPath(
+        string outputDirectory,
+        string manifestRelativePath,
+        TemplateManifest manifest,
+        IReadOnlyDictionary<string, string> tokenValues)
+    {
+        string replaced = ReplaceRenameTokens(manifestRelativePath, manifest, tokenValues);
+        string normalized = replaced.Replace('/', Path.DirectorySeparatorChar)
+            .Replace('\\', Path.DirectorySeparatorChar);
+
+        string sourceRootPrefix = manifest.SourceRoot.Replace('/', Path.DirectorySeparatorChar)
+            .Replace('\\', Path.DirectorySeparatorChar)
+            .TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+
+        if (normalized.StartsWith(sourceRootPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            normalized = normalized[sourceRootPrefix.Length..];
+        }
+
+        return Path.Combine(outputDirectory, normalized);
     }
 
     private static string ReplaceAllTokens(string value, IReadOnlyDictionary<string, string> tokenValues)
