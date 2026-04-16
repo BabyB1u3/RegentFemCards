@@ -54,6 +54,9 @@ public sealed class MainForm : Form
         Width = 1850;
         Height = 1070;
         StartPosition = FormStartPosition.CenterScreen;
+        AllowDrop = true;
+        DragEnter += HandlePckDragEnter;
+        DragDrop += HandlePckDragDrop;
 
         TableLayoutPanel rootLayout = new()
         {
@@ -367,6 +370,8 @@ public sealed class MainForm : Form
         _authorTextBox.Text = "Unknown Author";
         _descriptionTextBox.Text = "Generated portrait replacement mod";
         _outputDirectoryTextBox.Text = AppPaths.ArtifactOutputRoot;
+
+        EnablePckDragDrop(rootLayout);
     }
 
     private static Label CreateInfoLabel()
@@ -424,6 +429,65 @@ public sealed class MainForm : Form
         {
             ImportPck(dialog.FileName);
         }
+    }
+
+    private void HandlePckDragEnter(object? sender, DragEventArgs eventArgs)
+    {
+        eventArgs.Effect = HasDroppedPck(eventArgs.Data)
+            ? DragDropEffects.Copy
+            : DragDropEffects.None;
+    }
+
+    private void HandlePckDragDrop(object? sender, DragEventArgs eventArgs)
+    {
+        string[] pckPaths = GetDroppedPckPaths(eventArgs.Data);
+        if (pckPaths.Length == 0)
+        {
+            return;
+        }
+
+        if (pckPaths.Length > 1)
+        {
+            MessageBox.Show(
+                this,
+                $"Dropped {pckPaths.Length} PCK files. The current GUI flow imports one PCK at a time, so only the first file will be used:\n{pckPaths[0]}",
+                "Import PCK",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+
+        ImportPck(pckPaths[0]);
+    }
+
+    private void EnablePckDragDrop(Control control)
+    {
+        control.AllowDrop = true;
+        control.DragEnter += HandlePckDragEnter;
+        control.DragDrop += HandlePckDragDrop;
+
+        foreach (Control child in control.Controls)
+        {
+            EnablePckDragDrop(child);
+        }
+    }
+
+    private static bool HasDroppedPck(IDataObject? dataObject)
+    {
+        return GetDroppedPckPaths(dataObject).Length > 0;
+    }
+
+    private static string[] GetDroppedPckPaths(IDataObject? dataObject)
+    {
+        if (dataObject?.GetData(DataFormats.FileDrop) is not string[] droppedPaths)
+        {
+            return [];
+        }
+
+        return droppedPaths
+            .Where(path => string.Equals(Path.GetExtension(path), ".pck", StringComparison.OrdinalIgnoreCase))
+            .Select(Path.GetFullPath)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
     }
 
     private void ImportPck(string pckPath)
