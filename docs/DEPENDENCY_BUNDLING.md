@@ -50,15 +50,15 @@
 
 相关代码：
 
-- [tools/PortraitModGenerator.Core](/Users/mianli/Desktop/Code/StS2_Portrait_Mod_Generator/tools/PortraitModGenerator.Core)
-- [tools/PortraitModGenerator.Cli](/Users/mianli/Desktop/Code/StS2_Portrait_Mod_Generator/tools/PortraitModGenerator.Cli)
-- [tools/PortraitModGenerator.Gui](/Users/mianli/Desktop/Code/StS2_Portrait_Mod_Generator/tools/PortraitModGenerator.Gui)
+- [tools/PortraitModGenerator.Core](../tools/PortraitModGenerator.Core)
+- [tools/PortraitModGenerator.Cli](../tools/PortraitModGenerator.Cli)
+- [tools/PortraitModGenerator.Gui](../tools/PortraitModGenerator.Gui)
 
 ### 3.2 模板工程
 
 应内含：
 
-- [templates/PortraitReplacementTemplate](/Users/mianli/Desktop/Code/StS2_Portrait_Mod_Generator/templates/PortraitReplacementTemplate)
+- [templates/PortraitReplacementTemplate](../templates/PortraitReplacementTemplate)
 
 原因：
 
@@ -68,14 +68,14 @@
 
 相关代码：
 
-- [TemplateProjectGenerator.cs](/Users/mianli/Desktop/Code/StS2_Portrait_Mod_Generator/tools/PortraitModGenerator.Core/Services/TemplateProjectGenerator.cs:7)
-- [TemplateManifestLoader.cs](/Users/mianli/Desktop/Code/StS2_Portrait_Mod_Generator/tools/PortraitModGenerator.Core/Services/TemplateManifestLoader.cs:1)
+- [TemplateProjectGenerator.cs](../tools/PortraitModGenerator.Core/Services/TemplateProjectGenerator.cs)
+- [TemplateManifestLoader.cs](../tools/PortraitModGenerator.Core/Services/TemplateManifestLoader.cs)
 
 ### 3.3 内置数据文件
 
 应内含：
 
-- [data/official_card_index.json](/Users/mianli/Desktop/Code/StS2_Portrait_Mod_Generator/data/official_card_index.json)
+- [data/official_card_index.json](../data/official_card_index.json)
 
 原因：
 
@@ -84,14 +84,14 @@
 
 相关代码：
 
-- [OfficialCardIndexLoader.cs](/Users/mianli/Desktop/Code/StS2_Portrait_Mod_Generator/tools/PortraitModGenerator.Core/Services/OfficialCardIndexLoader.cs:1)
-- [MappingAnalyzer.cs](/Users/mianli/Desktop/Code/StS2_Portrait_Mod_Generator/tools/PortraitModGenerator.Core/Services/MappingAnalyzer.cs:15)
+- [OfficialCardIndexLoader.cs](../tools/PortraitModGenerator.Core/Services/OfficialCardIndexLoader.cs)
+- [MappingAnalyzer.cs](../tools/PortraitModGenerator.Core/Services/MappingAnalyzer.cs)
 
 ### 3.4 GDRETools
 
 应内含：
 
-- [gdre/gdre_tools.exe](/Users/mianli/Desktop/Code/StS2_Portrait_Mod_Generator/gdre/gdre_tools.exe)
+- [gdre/gdre_tools.exe](../gdre/gdre_tools.exe)
 - `gdre/` 目录下与其配套的运行文件
 
 原因：
@@ -101,8 +101,8 @@
 
 相关代码：
 
-- [GdrePckImporter.cs](/Users/mianli/Desktop/Code/StS2_Portrait_Mod_Generator/tools/PortraitModGenerator.Core/Services/GdrePckImporter.cs:15)
-- [AppPaths.cs](/Users/mianli/Desktop/Code/StS2_Portrait_Mod_Generator/tools/PortraitModGenerator.Gui/AppPaths.cs:27)
+- [GdrePckImporter.cs](../tools/PortraitModGenerator.Core/Services/GdrePckImporter.cs)
+- [AppPaths.cs](../tools/PortraitModGenerator.Gui/AppPaths.cs)
 
 ### 3.5 Godot / MegaDot
 
@@ -117,8 +117,8 @@
 
 相关代码：
 
-- [templates/PortraitReplacementTemplate/src/Directory.Build.props](/Users/mianli/Desktop/Code/StS2_Portrait_Mod_Generator/templates/PortraitReplacementTemplate/src/Directory.Build.props:1)
-- [templates/PortraitReplacementTemplate/src/__MOD_ID__.csproj](/Users/mianli/Desktop/Code/StS2_Portrait_Mod_Generator/templates/PortraitReplacementTemplate/src/__MOD_ID__.csproj:72)
+- [templates/PortraitReplacementTemplate/src/Directory.Build.props](../templates/PortraitReplacementTemplate/src/Directory.Build.props)
+- [templates/PortraitReplacementTemplate/src/__MOD_ID__.csproj](../templates/PortraitReplacementTemplate/src/__MOD_ID__.csproj)
 
 ### 3.6 `.NET SDK`
 
@@ -134,10 +134,10 @@
 
 相关代码：
 
-- [ModBuildService.cs](/Users/mianli/Desktop/Code/StS2_Portrait_Mod_Generator/tools/PortraitModGenerator.Core/Services/ModBuildService.cs:15)
-- [PortraitModGenerator.Core.csproj](/Users/mianli/Desktop/Code/StS2_Portrait_Mod_Generator/tools/PortraitModGenerator.Core/PortraitModGenerator.Core.csproj:1)
-- [PortraitModGenerator.Cli.csproj](/Users/mianli/Desktop/Code/StS2_Portrait_Mod_Generator/tools/PortraitModGenerator.Cli/PortraitModGenerator.Cli.csproj:1)
-- [PortraitModGenerator.Gui.csproj](/Users/mianli/Desktop/Code/StS2_Portrait_Mod_Generator/tools/PortraitModGenerator.Gui/PortraitModGenerator.Gui.csproj:1)
+- [ModBuildService.cs](../tools/PortraitModGenerator.Core/Services/ModBuildService.cs)
+- [PortraitModGenerator.Core.csproj](../tools/PortraitModGenerator.Core/PortraitModGenerator.Core.csproj)
+- [PortraitModGenerator.Cli.csproj](../tools/PortraitModGenerator.Cli/PortraitModGenerator.Cli.csproj)
+- [PortraitModGenerator.Gui.csproj](../tools/PortraitModGenerator.Gui/PortraitModGenerator.Gui.csproj)
 
 ## 4. 离线发布时也必须内含的内容
 
@@ -166,8 +166,8 @@
 
 相关代码：
 
-- [templates/PortraitReplacementTemplate/src/__MOD_ID__.csproj](/Users/mianli/Desktop/Code/StS2_Portrait_Mod_Generator/templates/PortraitReplacementTemplate/src/__MOD_ID__.csproj:40)
-- [nuget.config](/Users/mianli/Desktop/Code/StS2_Portrait_Mod_Generator/nuget.config:1)
+- [templates/PortraitReplacementTemplate/src/__MOD_ID__.csproj](../templates/PortraitReplacementTemplate/src/__MOD_ID__.csproj)
+- [nuget.config](../nuget.config)
 
 ### 4.2 固定包版本
 
@@ -183,7 +183,7 @@
 
 当前需要重点处理的项目：
 
-- [templates/PortraitReplacementTemplate/src/__MOD_ID__.csproj](/Users/mianli/Desktop/Code/StS2_Portrait_Mod_Generator/templates/PortraitReplacementTemplate/src/__MOD_ID__.csproj:40)
+- [templates/PortraitReplacementTemplate/src/__MOD_ID__.csproj](../templates/PortraitReplacementTemplate/src/__MOD_ID__.csproj)
 
 ## 5. 建议一并内含的内容
 
@@ -203,7 +203,7 @@
 
 相关代码：
 
-- [AppPaths.cs](/Users/mianli/Desktop/Code/StS2_Portrait_Mod_Generator/tools/PortraitModGenerator.Gui/AppPaths.cs:1)
+- [AppPaths.cs](../tools/PortraitModGenerator.Gui/AppPaths.cs)
 
 ### 5.2 缓存和工作目录约定
 
@@ -220,7 +220,7 @@
 
 相关代码：
 
-- [AppPaths.cs](/Users/mianli/Desktop/Code/StS2_Portrait_Mod_Generator/tools/PortraitModGenerator.Gui/AppPaths.cs:17)
+- [AppPaths.cs](../tools/PortraitModGenerator.Gui/AppPaths.cs)
 
 ### 5.3 发布启动器
 
@@ -268,8 +268,8 @@
 
 相关代码：
 
-- [templates/PortraitReplacementTemplate/src/Sts2PathDiscovery.props](/Users/mianli/Desktop/Code/StS2_Portrait_Mod_Generator/templates/PortraitReplacementTemplate/src/Sts2PathDiscovery.props:1)
-- [templates/PortraitReplacementTemplate/src/__MOD_ID__.csproj](/Users/mianli/Desktop/Code/StS2_Portrait_Mod_Generator/templates/PortraitReplacementTemplate/src/__MOD_ID__.csproj:24)
+- [templates/PortraitReplacementTemplate/src/Sts2PathDiscovery.props](../templates/PortraitReplacementTemplate/src/Sts2PathDiscovery.props)
+- [templates/PortraitReplacementTemplate/src/__MOD_ID__.csproj](../templates/PortraitReplacementTemplate/src/__MOD_ID__.csproj)
 
 ## 7. 发布包建议结构
 
@@ -310,13 +310,18 @@ StS2PortraitModGenerator/
 
 ## 8. 当前项目与发布目标的差距
 
-从当前代码状态看，离“完整内含发布”还差下面几项工作：
+仓库当前已经具备的基础：
 
-1. 让构建流程优先调用发布包自带的 `dotnet`
-2. 让模板发布流程优先调用发布包自带的 `godot`
-3. 把 GDRETools 路径从仓库开发目录假设收敛到发布包目录假设
-4. 建立本地 NuGet feed，并让模板 restore 优先走本地源
-5. 把模板中的浮动版本改成固定版本
+- 仓库根 `nuget.config` 已经把 `globalPackagesFolder` 指向 `packages/`，目录中已经包含模板需要的核心 NuGet 包
+- `gdre/` 已经随仓库分发 `gdre_tools.exe` 与配套的 `pck`
+- GUI 通过 [AppPaths.cs](../tools/PortraitModGenerator.Gui/AppPaths.cs) 的根目录探测，能基于仓库或发布包目录开箱即用
+
+离“完整内含、可离线、可独立分发”还差下面几项工作：
+
+1. 让构建流程优先调用发布包自带的 `dotnet`，而不是依赖系统 PATH 中的 `dotnet`
+2. 让模板发布流程优先调用发布包自带的 `godot` / `MegaDot`
+3. 把模板 `__MOD_ID__.csproj` 中的浮动版本固定到具体版本号，避免重新 restore 时漂移
+4. 提供发布启动器（脚本或 launcher），统一传入 `dotnet`、`godot`、`gdre` 与工作目录
 
 ## 9. 一句话总结
 

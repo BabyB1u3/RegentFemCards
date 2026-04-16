@@ -30,5 +30,6 @@ This dataset is intentionally scoped to the official non-beta card pool only.
 ## Current usage
 
 - This file is the authoritative source for candidate card ids.
-- Beta-only portraits are excluded on purpose so later matching logic stays focused on the release game.
-- Future mapping analysis should match imported assets against this index instead of guessing ids in isolation.
+- Beta-only portraits are excluded on purpose so the matching logic stays focused on the release game.
+- [MappingAnalyzer](../tools/PortraitModGenerator.Core/Services/MappingAnalyzer.cs) loads this index via [OfficialCardIndexLoader](../tools/PortraitModGenerator.Core/Services/OfficialCardIndexLoader.cs) and uses it for deterministic asset-to-card matching during the analyze stage.
+- The merge stage groups candidates by the `cardId` produced from this index; entries with the same `cardId` from multiple `.pck` packages become a conflict group in the GUI.

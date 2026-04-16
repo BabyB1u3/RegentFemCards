@@ -1,5 +1,7 @@
 # Multi-PCK Integration Design
 
+> **状态**：本文档描述的多包导入 + 统一索引 + 冲突决策 + 整合构建流程已经落地。会话模型、`MergeMappingsService`、`ConflictResolutionService`、`Conflicts` 视图、以及“build 只消费 resolved 结果”都已经实现。文档中枚举的第一版 MVP 能力已经在 GUI 中可用（连续导入多个 `.pck`、自动无冲突通过、冲突组人工审核、未匹配手工指定、最终整合 build）。保留本文作为设计背景；具体行为以 [MergeMappingsService.cs](../tools/PortraitModGenerator.Core/Services/MergeMappingsService.cs)、[ConflictResolutionService.cs](../tools/PortraitModGenerator.Core/Services/ConflictResolutionService.cs) 和 [MainForm.cs](../tools/PortraitModGenerator.Gui/MainForm.cs) / [ConflictReviewForm.cs](../tools/PortraitModGenerator.Gui/ConflictReviewForm.cs) / [BuildModForm.cs](../tools/PortraitModGenerator.Gui/BuildModForm.cs) 为准。
+
 ## 1. 文档目的
 
 本文档用于定义本项目下一阶段的核心目标：

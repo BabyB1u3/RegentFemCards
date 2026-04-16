@@ -1,5 +1,7 @@
 # StS2 Portrait Mod Generator 设计方案
 
+> **状态**：本文档是项目最初的总体设计方案，描述了从“写死的卡图替换 Mod”演进为“模板 + 生成器”的整体思路。文中的阶段 1～4（模板抽离、CLI 核心流程、构建链路、GUI）均已落地，多包整合阶段在 [MULTI_PCK_INTEGRATION_DESIGN.md](MULTI_PCK_INTEGRATION_DESIGN.md) 中继续展开并已实现。文中的具体目录结构、命令名称和模块职责仍可作为参考，但当前实现以代码为准（[tools/PortraitModGenerator.Core](../tools/PortraitModGenerator.Core)、[tools/PortraitModGenerator.Cli](../tools/PortraitModGenerator.Cli)、[tools/PortraitModGenerator.Gui](../tools/PortraitModGenerator.Gui)）。
+
 ## 1. 文档目的
 
 本文档用于把当前 `StS2_Portrait_Mod_Generator` 仓库，从“一个已经写死资源与配置的卡图替换 Mod”，演进为“可基于 `.pck` 资源半自动生成新 Mod 的模板 + 生成器体系”。
