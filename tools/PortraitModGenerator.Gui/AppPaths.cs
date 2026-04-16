@@ -20,7 +20,11 @@ internal static class AppPaths
 
     public static string CacheRoot => Path.Combine(AppRoot, "cache");
 
+    public static string ArtifactOutputRoot => Path.Combine(AppRoot, "artifacts");
+
     public static string GeneratedRoot => Path.Combine(AppRoot, "generated");
+
+    public static string DotnetCliHome => Path.Combine(CacheRoot, ".dotnet_cli");
 
     public static string GdreToolsPath => ResolveExistingFile(
         Path.Combine(AppRoot, "tools", "gdre", "gdre_tools.exe"),

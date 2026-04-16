@@ -78,6 +78,11 @@
         <MakeDir Directories="$(ModArtifactOutputDir)"/>
     </Target>
 
+    <Target Name="CopyManifestToModArtifactOutput" AfterTargets="Publish">
+        <MakeDir Directories="$(ModArtifactOutputDir)"/>
+        <Copy SourceFiles="$(AssemblyName).json" DestinationFolder="$(ModArtifactOutputDir)"/>
+    </Target>
+
     <Target Name="GodotPublish" AfterTargets="Publish" Condition="'$(GodotPath)' != '' and Exists('$(GodotPath)') and '$(IsInnerGodotExport)' != 'true'">
         <Message Text="Exporting Godot .pck to $(ModArtifactOutputDir)" Importance="high"/>
         <Exec Command="&quot;$(GodotPath)&quot; --headless --export-pack &quot;BasicExport&quot; &quot;$(ModArtifactOutputDir)$(MSBuildProjectName).pck&quot;"

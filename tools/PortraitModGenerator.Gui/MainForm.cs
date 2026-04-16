@@ -330,7 +330,7 @@ public sealed class MainForm : Form
         _descriptionTextBox = CreateFieldTextBox();
         generationLayout.Controls.Add(_descriptionTextBox, 1, 3);
 
-        generationLayout.Controls.Add(CreateFieldLabel("Output Dir:"), 0, 4);
+        generationLayout.Controls.Add(CreateFieldLabel("Artifact Dir:"), 0, 4);
         _outputDirectoryTextBox = CreateFieldTextBox();
         generationLayout.Controls.Add(_outputDirectoryTextBox, 1, 4);
 
@@ -352,21 +352,21 @@ public sealed class MainForm : Form
 
         _generateModButton = new Button
         {
-            Text = "Generate Mod Project",
+            Text = "Build Mod",
             AutoSize = true
         };
         _generateModButton.Click += (_, _) => GenerateModProject();
         generatePanel.Controls.Add(_generateModButton);
 
         _generationStatusLabel = CreateInfoLabel();
-        _generationStatusLabel.Text = "Load an analysis, review it, then generate a mod project here.";
+        _generationStatusLabel.Text = "Import a PCK, review mappings, then build the final mod output here.";
         generatePanel.Controls.Add(_generationStatusLabel);
 
         _analysisPathLabel.Text = "Import a portrait PCK to begin review.";
         _importStatusLabel.Text = $"GDRE: {AppPaths.GdreToolsPath} | Cache: {AppPaths.CacheRoot}";
         _authorTextBox.Text = "Unknown Author";
         _descriptionTextBox.Text = "Generated portrait replacement mod";
-        _outputDirectoryTextBox.Text = AppPaths.GeneratedRoot;
+        _outputDirectoryTextBox.Text = AppPaths.ArtifactOutputRoot;
     }
 
     private static Label CreateInfoLabel()
@@ -1036,7 +1036,7 @@ public sealed class MainForm : Form
     {
         if (_session is null || string.IsNullOrWhiteSpace(_officialCardIndexPath))
         {
-            MessageBox.Show(this, "Load and review a mapping analysis first.", "Generate mod", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show(this, "Import and review a portrait PCK first.", "Build mod", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
         }
 
@@ -1063,33 +1063,39 @@ public sealed class MainForm : Form
         string modName = _modNameTextBox.Text.Trim();
         string author = _authorTextBox.Text.Trim();
         string description = _descriptionTextBox.Text.Trim();
-        string outputParent = _outputDirectoryTextBox.Text.Trim();
+        string artifactOutputParent = _outputDirectoryTextBox.Text.Trim();
 
         if (string.IsNullOrWhiteSpace(modId))
         {
-            MessageBox.Show(this, "Mod ID is required.", "Generate mod", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show(this, "Mod ID is required.", "Build mod", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(outputParent))
+        if (string.IsNullOrWhiteSpace(artifactOutputParent))
         {
-            MessageBox.Show(this, "Output directory is required.", "Generate mod", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show(this, "Artifact output directory is required.", "Build mod", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
         }
 
         string templateDirectory = AppPaths.PortraitTemplateDirectory;
-        string generatedRoot = Path.Combine(Path.GetFullPath(outputParent), modId);
-        string reviewPath = Path.Combine(generatedRoot, $"{modId}.mapping_review.json");
+        string sessionRoot = ResolveSessionRoot();
+        string sourceGenerationRoot = Path.Combine(sessionRoot, "generated_src", modId);
+        string artifactOutputDirectory = Path.Combine(Path.GetFullPath(artifactOutputParent), modId);
+        string reviewPath = Path.Combine(sessionRoot, $"{modId}.mapping_review.json");
+        string buildLogPath = Path.Combine(sessionRoot, "build", modId, "publish.log");
 
         try
         {
-            Directory.CreateDirectory(Path.GetFullPath(outputParent));
+            UseWaitCursor = true;
+            TogglePrimaryActions(enabled: false);
+
+            Directory.CreateDirectory(Path.GetFullPath(artifactOutputParent));
 
             TemplateProjectGenerator templateGenerator = new();
-            templateGenerator.Generate(new TemplateGenerationRequest
+            TemplateGenerationResult generationResult = templateGenerator.Generate(new TemplateGenerationRequest
             {
                 TemplateDirectory = templateDirectory,
-                OutputDirectory = generatedRoot,
+                OutputDirectory = sourceGenerationRoot,
                 OverwriteExistingOutput = true,
                 TokenValues = new Dictionary<string, string>(StringComparer.Ordinal)
                 {
@@ -1115,23 +1121,57 @@ public sealed class MainForm : Form
             MaterializeMappingsResult result = materializer.Materialize(new MaterializeMappingsRequest
             {
                 MappingAnalysisPath = reviewPath,
-                ModProjectRoot = generatedRoot,
+                ModProjectRoot = sourceGenerationRoot,
                 ModId = modId
             });
 
-            _generationStatusLabel.Text = $"Generated {result.EntriesWritten} entries at {generatedRoot}";
+            ModBuildService buildService = new();
+            ModBuildResult buildResult = buildService.Build(new ModBuildRequest
+            {
+                ProjectFilePath = generationResult.EntryProjectPath,
+                ArtifactOutputDirectory = artifactOutputDirectory,
+                LogFilePath = buildLogPath,
+                DotnetCliHome = AppPaths.DotnetCliHome
+            });
+
+            _generationStatusLabel.Text = $"Built mod to {artifactOutputDirectory}";
             MessageBox.Show(
                 this,
-                $"Generated mod project:\n{generatedRoot}\n\nConfig:\n{result.ConfigPath}",
-                "Generate mod",
+                $"Built mod output:\n{artifactOutputDirectory}\n\nBuild log:\n{buildResult.LogFilePath}",
+                "Build mod",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
         }
         catch (Exception ex)
         {
-            _generationStatusLabel.Text = $"Generation failed: {ex.Message}";
-            MessageBox.Show(this, ex.Message, "Generate mod failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            string logMessage = File.Exists(buildLogPath)
+                ? $"\n\nBuild log:\n{buildLogPath}"
+                : string.Empty;
+            _generationStatusLabel.Text = $"Build failed. Log: {buildLogPath}";
+            MessageBox.Show(this, $"{ex.Message}{logMessage}", "Build mod failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
+        finally
+        {
+            TogglePrimaryActions(enabled: true);
+            UseWaitCursor = false;
+        }
+    }
+
+    private string ResolveSessionRoot()
+    {
+        if (!string.IsNullOrWhiteSpace(_analysisPath))
+        {
+            string? analysisDirectory = Path.GetDirectoryName(_analysisPath);
+            if (!string.IsNullOrWhiteSpace(analysisDirectory))
+            {
+                return analysisDirectory;
+            }
+        }
+
+        string fallbackSessionName = $"manual_{DateTime.Now:yyyyMMdd_HHmmss}";
+        string fallbackSessionRoot = Path.Combine(AppPaths.CacheRoot, "sessions", fallbackSessionName);
+        Directory.CreateDirectory(fallbackSessionRoot);
+        return fallbackSessionRoot;
     }
 
     private static string SanitizeSessionName(string value)

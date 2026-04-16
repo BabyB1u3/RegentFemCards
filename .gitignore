@@ -11,3 +11,4 @@ archive/**/bin/
 archive/**/obj/
 *.DotSettings.user
 cache
+artifacts
