@@ -1,26 +1,55 @@
 using PortraitModGenerator.Core.Abstractions;
 using PortraitModGenerator.Core.Services;
 
+string? command = null;
+string[] commandArgs = args;
+if (args.Length > 0 && !args[0].StartsWith("--", StringComparison.Ordinal))
+{
+    command = args[0];
+    commandArgs = args[1..];
+}
+
 Dictionary<string, string> arguments;
 
 try
 {
-    arguments = ParseArguments(args);
+    arguments = ParseArguments(commandArgs);
 }
 catch (ArgumentException ex)
 {
     Console.Error.WriteLine(ex.Message);
-    PrintUsage();
+    PrintUsage(command);
     return 1;
 }
 
 if (args.Length == 0 || arguments.ContainsKey("--help"))
 {
-    PrintUsage();
+    PrintUsage(command);
     return 0;
 }
 
 try
+{
+    switch (command)
+    {
+        case null:
+        case "generate-template":
+            RunTemplateGeneration(arguments);
+            return 0;
+        case "import-pck":
+            RunPckImport(arguments);
+            return 0;
+        default:
+            throw new ArgumentException($"Unknown command '{command}'.");
+    }
+}
+catch (Exception ex)
+{
+    Console.Error.WriteLine($"Operation failed: {ex.Message}");
+    return 1;
+}
+
+static void RunTemplateGeneration(IReadOnlyDictionary<string, string> arguments)
 {
     TemplateProjectGenerator generator = new();
     TemplateGenerationRequest request = new()
@@ -38,12 +67,31 @@ try
     Console.WriteLine($"Output: {result.OutputDirectory}");
     Console.WriteLine($"Project: {result.EntryProjectPath}");
     Console.WriteLine($"Manifest: {result.ManifestPath}");
-    return 0;
 }
-catch (Exception ex)
+
+static void RunPckImport(IReadOnlyDictionary<string, string> arguments)
 {
-    Console.Error.WriteLine($"Generation failed: {ex.Message}");
-    return 1;
+    string currentDirectory = Directory.GetCurrentDirectory();
+    string defaultGdrePath = Path.Combine(currentDirectory, "gdre", "gdre_tools.exe");
+
+    GdrePckImporter importer = new();
+    PckImportRequest request = new()
+    {
+        SourcePckPath = GetRequired(arguments, "--pck"),
+        OutputDirectory = GetRequired(arguments, "--output"),
+        GdreToolsPath = GetOptional(arguments, "--gdre", defaultGdrePath),
+        LogFilePath = GetOptional(arguments, "--log", string.Empty),
+        OverwriteOutput = arguments.ContainsKey("--overwrite")
+    };
+
+    PckImportResult result = importer.Import(request);
+
+    Console.WriteLine("PCK import completed.");
+    Console.WriteLine($"Source: {result.SourcePckPath}");
+    Console.WriteLine($"Output: {result.ExtractRoot}");
+    Console.WriteLine($"GDRE: {result.GdreToolsPath}");
+    Console.WriteLine($"ExitCode: {result.ExitCode}");
+    Console.WriteLine($"Log: {result.LogFilePath}");
 }
 
 static Dictionary<string, string> ParseArguments(string[] args)
@@ -65,12 +113,27 @@ static Dictionary<string, string> ParseArguments(string[] args)
             continue;
         }
 
+        string key = current;
+        string? inlineValue = null;
+        int separatorIndex = current.IndexOf('=');
+        if (separatorIndex > 0)
+        {
+            key = current[..separatorIndex];
+            inlineValue = current[(separatorIndex + 1)..];
+        }
+
+        if (inlineValue is not null)
+        {
+            parsed[key] = inlineValue;
+            continue;
+        }
+
         if (i + 1 >= args.Length)
         {
             throw new ArgumentException($"Missing value for argument '{current}'.");
         }
 
-        parsed[current] = args[++i];
+        parsed[key] = args[++i];
     }
 
     return parsed;
@@ -107,24 +170,54 @@ static string GetOptional(IReadOnlyDictionary<string, string> arguments, string 
         : fallback;
 }
 
-static void PrintUsage()
+static void PrintUsage(string? command)
 {
-    Console.WriteLine("Usage:");
-    Console.WriteLine("  dotnet run --project tools/PortraitModGenerator.Cli -- \\");
-    Console.WriteLine("    --template <templateDir> \\");
-    Console.WriteLine("    --output <outputDir> \\");
-    Console.WriteLine("    --mod-id <modId> [options]");
-    Console.WriteLine();
-    Console.WriteLine("Required:");
-    Console.WriteLine("  --template       Path to a template directory containing template.json");
-    Console.WriteLine("  --output         Output directory for the generated mod project");
-    Console.WriteLine("  --mod-id         Mod identifier used for project, manifest and resource paths");
-    Console.WriteLine();
-    Console.WriteLine("Optional:");
-    Console.WriteLine("  --mod-name       Display name for the generated mod");
-    Console.WriteLine("  --author         Author name");
-    Console.WriteLine("  --description    Mod description");
-    Console.WriteLine("  --version        Mod version (default: v0.1.0)");
-    Console.WriteLine("  --overwrite      Allow using an existing output directory");
-    Console.WriteLine("  --help           Show this help");
+    switch (command)
+    {
+        case "import-pck":
+            Console.WriteLine("Usage:");
+            Console.WriteLine("  dotnet run --project tools/PortraitModGenerator.Cli -- import-pck \\");
+            Console.WriteLine("    --pck <input.pck> \\");
+            Console.WriteLine("    --output <extractDir> [options]");
+            Console.WriteLine();
+            Console.WriteLine("Required:");
+            Console.WriteLine("  --pck            Path to the source PCK file");
+            Console.WriteLine("  --output         Directory where extracted files will be written");
+            Console.WriteLine();
+            Console.WriteLine("Optional:");
+            Console.WriteLine("  --gdre           Path to gdre_tools.exe");
+            Console.WriteLine("  --log            Explicit log file path");
+            Console.WriteLine("  --overwrite      Allow using an existing output directory");
+            Console.WriteLine("  --help           Show this help");
+            break;
+        case null:
+        case "generate-template":
+            Console.WriteLine("Usage:");
+            Console.WriteLine("  dotnet run --project tools/PortraitModGenerator.Cli -- generate-template \\");
+            Console.WriteLine("    --template <templateDir> \\");
+            Console.WriteLine("    --output <outputDir> \\");
+            Console.WriteLine("    --mod-id <modId> [options]");
+            Console.WriteLine();
+            Console.WriteLine("Required:");
+            Console.WriteLine("  --template       Path to a template directory containing template.json");
+            Console.WriteLine("  --output         Output directory for the generated mod project");
+            Console.WriteLine("  --mod-id         Mod identifier used for project, manifest and resource paths");
+            Console.WriteLine();
+            Console.WriteLine("Optional:");
+            Console.WriteLine("  --mod-name       Display name for the generated mod");
+            Console.WriteLine("  --author         Author name");
+            Console.WriteLine("  --description    Mod description");
+            Console.WriteLine("  --version        Mod version (default: v0.1.0)");
+            Console.WriteLine("  --overwrite      Allow using an existing output directory");
+            Console.WriteLine("  --help           Show this help");
+            Console.WriteLine();
+            Console.WriteLine("Commands:");
+            Console.WriteLine("  generate-template   Generate a mod project from a template");
+            Console.WriteLine("  import-pck          Extract a PCK with GDRETools");
+            break;
+        default:
+            Console.WriteLine($"Unknown command '{command}'.");
+            Console.WriteLine("Available commands: generate-template, import-pck");
+            break;
+    }
 }
