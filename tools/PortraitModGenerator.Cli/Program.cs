@@ -80,8 +80,10 @@ static void RunTemplateGeneration(IReadOnlyDictionary<string, string> arguments)
 
 static void RunPckImport(IReadOnlyDictionary<string, string> arguments)
 {
-    string currentDirectory = Directory.GetCurrentDirectory();
-    string defaultGdrePath = Path.Combine(currentDirectory, "gdre", "gdre_tools.exe");
+    string appRoot = ResolveAppRoot();
+    string defaultGdrePath = ResolveExistingPath(
+        Path.Combine(appRoot, "tools", "gdre", "gdre_tools.exe"),
+        Path.Combine(appRoot, "gdre", "gdre_tools.exe"));
 
     GdrePckImporter importer = new();
     PckImportRequest request = new()
@@ -123,8 +125,9 @@ static void RunAssetScan(IReadOnlyDictionary<string, string> arguments)
 
 static void RunMappingAnalysis(IReadOnlyDictionary<string, string> arguments)
 {
-    string currentDirectory = Directory.GetCurrentDirectory();
-    string defaultOfficialCardIndexPath = Path.Combine(currentDirectory, "data", "official_card_index.json");
+    string appRoot = ResolveAppRoot();
+    string defaultOfficialCardIndexPath = ResolveExistingPath(
+        Path.Combine(appRoot, "data", "official_card_index.json"));
     string scanResultPath = GetRequired(arguments, "--scan");
     string outputJsonPath = GetOptional(
         arguments,
@@ -340,4 +343,43 @@ static void PrintUsage(string? command)
             Console.WriteLine("Available commands: generate-template, import-pck, scan-assets, analyze-mappings, materialize-mappings");
             break;
     }
+}
+
+static string ResolveAppRoot()
+{
+    string[] rootMarkers =
+    [
+        Path.Combine("templates", "PortraitReplacementTemplate", "template.json"),
+        Path.Combine("data", "official_card_index.json")
+    ];
+
+    foreach (string start in new[] { AppContext.BaseDirectory, Directory.GetCurrentDirectory() })
+    {
+        DirectoryInfo? current = new(Path.GetFullPath(start));
+        while (current is not null)
+        {
+            bool isRoot = rootMarkers.All(marker => File.Exists(Path.Combine(current.FullName, marker)));
+            if (isRoot)
+            {
+                return current.FullName;
+            }
+
+            current = current.Parent;
+        }
+    }
+
+    return Directory.GetCurrentDirectory();
+}
+
+static string ResolveExistingPath(params string[] candidates)
+{
+    foreach (string candidate in candidates)
+    {
+        if (File.Exists(candidate))
+        {
+            return candidate;
+        }
+    }
+
+    return candidates[0];
 }

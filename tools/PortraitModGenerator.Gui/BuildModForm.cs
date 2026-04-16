@@ -337,7 +337,10 @@ internal sealed class BuildModForm : Form
                     ProjectFilePath = generationResult.EntryProjectPath,
                     ArtifactOutputDirectory = artifactOutputDirectory,
                     LogFilePath = buildLogPath,
-                    DotnetCliHome = AppPaths.DotnetCliHome
+                    DotnetCliHome = AppPaths.DotnetCliHome,
+                    DotnetExecutablePath = AppPaths.DotnetExecutablePath,
+                    RestoreConfigFilePath = AppPaths.NuGetConfigPath,
+                    GodotExecutablePath = AppPaths.GodotExecutablePath
                 });
             });
 

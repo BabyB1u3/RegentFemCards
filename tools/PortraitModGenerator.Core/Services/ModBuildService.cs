@@ -20,10 +20,28 @@ public sealed class ModBuildService
         string artifactOutputDirectory = Path.GetFullPath(request.ArtifactOutputDirectory);
         string logFilePath = Path.GetFullPath(request.LogFilePath);
         string dotnetCliHome = Path.GetFullPath(request.DotnetCliHome);
+        string dotnetExecutablePath = request.DotnetExecutablePath;
+        string restoreConfigFilePath = Path.GetFullPath(request.RestoreConfigFilePath);
+        string godotExecutablePath = Path.GetFullPath(request.GodotExecutablePath);
 
         if (!File.Exists(projectFilePath))
         {
             throw new FileNotFoundException("Project file was not found.", projectFilePath);
+        }
+
+        if (LooksLikePath(dotnetExecutablePath) && !File.Exists(dotnetExecutablePath))
+        {
+            throw new FileNotFoundException("dotnet executable was not found.", dotnetExecutablePath);
+        }
+
+        if (!File.Exists(restoreConfigFilePath))
+        {
+            throw new FileNotFoundException("NuGet config file was not found.", restoreConfigFilePath);
+        }
+
+        if (!File.Exists(godotExecutablePath))
+        {
+            throw new FileNotFoundException("Godot executable was not found.", godotExecutablePath);
         }
 
         Directory.CreateDirectory(artifactOutputDirectory);
@@ -31,11 +49,12 @@ public sealed class ModBuildService
         Directory.CreateDirectory(dotnetCliHome);
 
         string workingDirectory = Path.GetDirectoryName(projectFilePath)!;
-        string arguments = $"build \"{projectFilePath}\" -c {request.Configuration}";
+        string arguments =
+            $"build \"{projectFilePath}\" -c {request.Configuration} --configfile \"{restoreConfigFilePath}\" -p:GodotPath=\"{godotExecutablePath}\"";
 
         ProcessStartInfo startInfo = new()
         {
-            FileName = "dotnet",
+            FileName = dotnetExecutablePath,
             Arguments = arguments,
             WorkingDirectory = workingDirectory,
             RedirectStandardOutput = true,
@@ -48,6 +67,12 @@ public sealed class ModBuildService
         startInfo.Environment["DOTNET_CLI_HOME"] = dotnetCliHome;
         startInfo.Environment["DOTNET_CLI_TELEMETRY_OPTOUT"] = "1";
         startInfo.Environment["DOTNET_NOLOGO"] = "1";
+        startInfo.Environment["DOTNET_MULTILEVEL_LOOKUP"] = "0";
+
+        if (LooksLikePath(dotnetExecutablePath))
+        {
+            startInfo.Environment["DOTNET_ROOT"] = Path.GetDirectoryName(Path.GetFullPath(dotnetExecutablePath))!;
+        }
 
         DateTimeOffset startedAt = DateTimeOffset.UtcNow;
         using Process process = new() { StartInfo = startInfo };
@@ -90,7 +115,7 @@ public sealed class ModBuildService
             ProjectFilePath = projectFilePath,
             ArtifactOutputDirectory = artifactOutputDirectory,
             LogFilePath = logFilePath,
-            CommandLine = $"dotnet {arguments}",
+            CommandLine = $"\"{dotnetExecutablePath}\" {arguments}",
             StartedAt = startedAt,
             EndedAt = endedAt,
             ExitCode = process.ExitCode,
@@ -107,6 +132,11 @@ public sealed class ModBuildService
         }
 
         return result;
+    }
+
+    private static bool LooksLikePath(string value)
+    {
+        return value.Contains(Path.DirectorySeparatorChar) || value.Contains(Path.AltDirectorySeparatorChar);
     }
 
     private static void CollectArtifacts(string projectFilePath, string configuration, string artifactOutputDirectory)
