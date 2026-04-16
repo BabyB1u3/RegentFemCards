@@ -45,7 +45,10 @@ function Copy-Tree {
 
     Assert-DirectoryExists -PathValue $Source -Label "Required directory"
     New-Item -ItemType Directory -Force -Path $Destination | Out-Null
-    Copy-Item -LiteralPath (Join-Path $Source "*") -Destination $Destination -Recurse -Force
+    & robocopy $Source $Destination /E /R:2 /W:1 /NFL /NDL /NJH /NJS /NP | Out-Null
+    if ($LASTEXITCODE -ge 8) {
+        throw "robocopy failed while copying '$Source' to '$Destination' (exit code $LASTEXITCODE)"
+    }
 }
 
 function Publish-Project {
@@ -113,6 +116,22 @@ foreach ($workingDir in @("cache", "generated", "artifacts", "logs")) {
 }
 
 Copy-Item -LiteralPath (Join-Path $repoRoot "README.md") -Destination (Join-Path $outputRoot "README.md") -Force
+
+@'
+@echo off
+setlocal
+set "DOTNET_ROOT=%~dp0tools\dotnet"
+set "DOTNET_MULTILEVEL_LOOKUP=0"
+start "" "%~dp0tools\dotnet\dotnet.exe" "%~dp0app\PortraitModGenerator.Gui.dll"
+'@ | Set-Content -LiteralPath (Join-Path $outputRoot "Start-PortraitModGenerator.cmd") -Encoding ASCII
+
+@'
+@echo off
+setlocal
+set "DOTNET_ROOT=%~dp0tools\dotnet"
+set "DOTNET_MULTILEVEL_LOOKUP=0"
+"%~dp0tools\dotnet\dotnet.exe" "%~dp0app\PortraitModGenerator.Cli.dll" %*
+'@ | Set-Content -LiteralPath (Join-Path $outputRoot "Run-PortraitModGeneratorCli.cmd") -Encoding ASCII
 
 Write-Host ""
 Write-Host "Bundled release created:"

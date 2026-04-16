@@ -42,6 +42,7 @@ Run:
 The script will:
 
 - publish the GUI and CLI into `app/`
+- create root launchers that always use bundled `tools/dotnet/dotnet.exe`
 - copy templates, data, packages, and config
 - place GDRE under `tools/gdre/`
 - place the bundled `.NET SDK` under `tools/dotnet/`
@@ -52,10 +53,16 @@ The script will:
 
 At runtime, the generator now prefers:
 
+- bundled launchers at the package root
 - bundled `dotnet` from `tools/dotnet/dotnet.exe`
 - bundled GDRE from `tools/gdre/gdre_tools.exe`
 - bundled Godot from `tools/godot/`
 - bundled NuGet config from `config/NuGet.config`
+
+Recommended entry points:
+
+- `Start-PortraitModGenerator.cmd`
+- `Run-PortraitModGeneratorCli.cmd`
 
 The generated mod project is built with:
 
