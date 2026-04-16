@@ -21,19 +21,19 @@
 
 ### 2.1 当前关键结构
 
-- 运行时代码位于 `RegentFemCardsCode/`
-- 资源位于 `RegentFemCards/`
-- 配置文件位于 `RegentFemCards/config/card_replacements.json`
+- 运行时代码位于 `archive/RegentFemCardsReference/RegentFemCardsCode/`
+- 资源位于 `archive/RegentFemCardsReference/RegentFemCards/`
+- 配置文件位于 `archive/RegentFemCardsReference/RegentFemCards/config/card_replacements.json`
 - 构建与导出入口位于根目录：
-  - `RegentFemCards.csproj`
-  - `RegentFemCards.json`
-  - `project.godot`
-  - `Directory.Build.props`
-  - `Sts2PathDiscovery.props`
+  - `archive/RegentFemCardsReference/RegentFemCards.csproj`
+  - `archive/RegentFemCardsReference/RegentFemCards.json`
+  - `archive/RegentFemCardsReference/project.godot`
+  - `archive/RegentFemCardsReference/Directory.Build.props`
+  - `archive/RegentFemCardsReference/Sts2PathDiscovery.props`
 
 ### 2.2 当前配置机制
 
-当前 Mod 的核心配置入口是 `RegentFemCardsCode/CardReplacementConfig.cs`。它会从固定路径加载：
+当前参考 Mod 的核心配置入口是 `archive/RegentFemCardsReference/RegentFemCardsCode/CardReplacementConfig.cs`。它会从固定路径加载：
 
 `res://RegentFemCards/config/card_replacements.json`
 
@@ -823,7 +823,7 @@ temp/
 
 ### 13.1 当前项目保留为参考实现
 
-`RegentFemCards` 当前已经是一个可工作的参考样板，应保留：
+`archive/RegentFemCardsReference` 当前已经是一个可工作的参考样板，应保留：
 
 - 作为运行时验证项目
 - 作为模板抽取来源

@@ -3,3 +3,10 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+.dotnet_cli/
+.idea/
+tools/**/bin/
+tools/**/obj/
+archive/**/bin/
+archive/**/obj/
+*.DotSettings.user
