@@ -42,6 +42,9 @@ try
         case "scan-assets":
             RunAssetScan(arguments);
             return 0;
+        case "analyze-mappings":
+            RunMappingAnalysis(arguments);
+            return 0;
         default:
             throw new ArgumentException($"Unknown command '{command}'.");
     }
@@ -112,6 +115,35 @@ static void RunAssetScan(IReadOnlyDictionary<string, string> arguments)
     Console.WriteLine($"Input: {result.InputDirectory}");
     Console.WriteLine($"ScannedFiles: {result.TotalFilesScanned}");
     Console.WriteLine($"ImageFiles: {result.ImageFilesFound}");
+    Console.WriteLine($"OutputJson: {result.OutputJsonPath}");
+}
+
+static void RunMappingAnalysis(IReadOnlyDictionary<string, string> arguments)
+{
+    string currentDirectory = Directory.GetCurrentDirectory();
+    string defaultOfficialCardIndexPath = Path.Combine(currentDirectory, "data", "official_card_index.json");
+    string scanResultPath = GetRequired(arguments, "--scan");
+    string outputJsonPath = GetOptional(
+        arguments,
+        "--output-json",
+        Path.Combine(Path.GetDirectoryName(Path.GetFullPath(scanResultPath))!, "mapping_analysis_result.json"));
+
+    MappingAnalyzer analyzer = new();
+    MappingAnalysisRequest request = new()
+    {
+        ScanResultPath = scanResultPath,
+        OfficialCardIndexPath = GetOptional(arguments, "--official-index", defaultOfficialCardIndexPath),
+        OutputJsonPath = outputJsonPath
+    };
+
+    MappingAnalysisResult result = analyzer.Analyze(request);
+
+    Console.WriteLine("Mapping analysis completed.");
+    Console.WriteLine($"Scan: {result.ScanResultPath}");
+    Console.WriteLine($"OfficialIndex: {result.OfficialCardIndexPath}");
+    Console.WriteLine($"TotalAssets: {result.TotalAssets}");
+    Console.WriteLine($"MatchedAssets: {result.MatchedAssets}");
+    Console.WriteLine($"IgnoredAssets: {result.IgnoredAssets}");
     Console.WriteLine($"OutputJson: {result.OutputJsonPath}");
 }
 
@@ -223,6 +255,19 @@ static void PrintUsage(string? command)
             Console.WriteLine("  --output-json    Explicit output JSON path");
             Console.WriteLine("  --help           Show this help");
             break;
+        case "analyze-mappings":
+            Console.WriteLine("Usage:");
+            Console.WriteLine("  dotnet run --project tools/PortraitModGenerator.Cli -- analyze-mappings \\");
+            Console.WriteLine("    --scan <assetScanResult.json> [options]");
+            Console.WriteLine();
+            Console.WriteLine("Required:");
+            Console.WriteLine("  --scan           Path to asset_scan_result.json");
+            Console.WriteLine();
+            Console.WriteLine("Optional:");
+            Console.WriteLine("  --official-index Path to official_card_index.json");
+            Console.WriteLine("  --output-json    Explicit output JSON path");
+            Console.WriteLine("  --help           Show this help");
+            break;
         case null:
         case "generate-template":
             Console.WriteLine("Usage:");
@@ -248,10 +293,11 @@ static void PrintUsage(string? command)
             Console.WriteLine("  generate-template   Generate a mod project from a template");
             Console.WriteLine("  import-pck          Extract a PCK with GDRETools");
             Console.WriteLine("  scan-assets         Scan a recovered directory for image assets");
+            Console.WriteLine("  analyze-mappings    Match scanned assets against the official card index");
             break;
         default:
             Console.WriteLine($"Unknown command '{command}'.");
-            Console.WriteLine("Available commands: generate-template, import-pck, scan-assets");
+            Console.WriteLine("Available commands: generate-template, import-pck, scan-assets, analyze-mappings");
             break;
     }
 }

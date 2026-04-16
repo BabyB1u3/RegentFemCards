@@ -37,13 +37,15 @@ Already done:
 - Extracted a reusable `PortraitReplacementTemplate`.
 - Cleaned the template so it no longer carries the current mod's real portrait assets or mappings.
 - Added `PortraitModGenerator.Core` with template generation, GDRE recover import, and asset scanning.
-- Added `PortraitModGenerator.Cli` with `generate-template`, `import-pck`, and `scan-assets`.
+- Added `PortraitModGenerator.Cli` with `generate-template`, `import-pck`, `scan-assets`, and `analyze-mappings`.
 - Added a pre-generated `official_card_index.json` baseline for authoritative card ids.
+- Added deterministic asset-to-card matching against the built-in official card index.
 
 Not done yet:
 
-- Matching imported assets against the official card index
-- Candidate mapping generation and review flow
+- `card_replacements.json` generation from approved mappings
+- Portrait copying into the generated mod project
+- Candidate mapping review/edit flow
 - Mapping editor UI
 - End-to-end build pipeline for generated mods
 
