@@ -147,13 +147,10 @@ public sealed class ModBuildService
 
         CopyIfExists(manifestPath, Path.Combine(artifactOutputDirectory, Path.GetFileName(manifestPath)));
 
-        string? builtDllPath = FindNewestFile(
-            Path.Combine(projectDirectory, ".godot"),
+        string? builtDllPath = FindNewestRuntimeAssembly(
+            projectDirectory,
+            configuration,
             $"{projectName}.dll");
-        if (builtDllPath is null)
-        {
-            builtDllPath = FindNewestFile(projectDirectory, $"{projectName}.dll");
-        }
 
         string? builtPckPath = FindNewestFile(
             Path.Combine(projectDirectory, ".godot"),
@@ -170,7 +167,31 @@ public sealed class ModBuildService
         }
     }
 
-    private static string? FindNewestFile(string rootDirectory, string fileName)
+    private static string? FindNewestRuntimeAssembly(string projectDirectory, string configuration, string fileName)
+    {
+        string[] searchRoots =
+        {
+            Path.Combine(projectDirectory, "bin", configuration),
+            Path.Combine(projectDirectory, ".godot"),
+            Path.Combine(projectDirectory, "bin")
+        };
+
+        foreach (string searchRoot in searchRoots)
+        {
+            string? runtimeAssemblyPath = FindNewestFile(
+                searchRoot,
+                fileName,
+                path => !IsReferenceAssemblyPath(path) && !IsObjectDirectoryPath(path));
+            if (runtimeAssemblyPath is not null)
+            {
+                return runtimeAssemblyPath;
+            }
+        }
+
+        return null;
+    }
+
+    private static string? FindNewestFile(string rootDirectory, string fileName, Func<string, bool>? predicate = null)
     {
         if (!Directory.Exists(rootDirectory))
         {
@@ -178,10 +199,25 @@ public sealed class ModBuildService
         }
 
         return Directory.EnumerateFiles(rootDirectory, fileName, SearchOption.AllDirectories)
+            .Where(path => predicate?.Invoke(path) ?? true)
             .Select(path => new FileInfo(path))
             .OrderByDescending(info => info.LastWriteTimeUtc)
             .Select(info => info.FullName)
             .FirstOrDefault();
+    }
+
+    private static bool IsReferenceAssemblyPath(string path)
+    {
+        string[] segments = path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        return segments.Any(segment =>
+            string.Equals(segment, "ref", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(segment, "refint", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static bool IsObjectDirectoryPath(string path)
+    {
+        string[] segments = path.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        return segments.Any(segment => string.Equals(segment, "obj", StringComparison.OrdinalIgnoreCase));
     }
 
     private static void CopyIfExists(string sourcePath, string destinationPath)
