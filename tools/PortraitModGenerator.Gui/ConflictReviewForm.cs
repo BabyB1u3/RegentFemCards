@@ -1,6 +1,7 @@
 using System.Windows.Forms;
 using PortraitModGenerator.Core.Abstractions;
 using PortraitModGenerator.Core.Services;
+using PortraitModGenerator.Gui.Resources;
 
 namespace PortraitModGenerator.Gui;
 
@@ -30,7 +31,7 @@ internal sealed class ConflictReviewForm : Form
         _session = session;
         _sessionChanged = sessionChanged;
 
-        Text = "Conflict Review";
+        Text = Strings.ConflictReviewForm_Title;
         Width = 1494;
         Height = 910;
         MinimumSize = new Size(1480, 820);
@@ -60,14 +61,19 @@ internal sealed class ConflictReviewForm : Form
             Width = 180,
             DropDownStyle = ComboBoxStyle.DropDownList
         };
-        _filterComboBox.Items.AddRange(["All", "Pending", "Resolved", "Discarded"]);
+        _filterComboBox.Items.AddRange([
+            Strings.Filter_All,
+            Strings.Filter_Pending,
+            Strings.Filter_Resolved,
+            Strings.Filter_Discarded
+        ]);
         _filterComboBox.SelectedIndex = 0;
-        _filterComboBox.SelectedIndexChanged += (_, _) => RefreshConflictGroups(keepSelection: false);
+        _filterComboBox.SelectedIndexChanged += HandleFilterChanged;
         toolbar.Controls.Add(_filterComboBox);
 
         _nextPendingButton = new Button
         {
-            Text = "Next Pending",
+            Text = Strings.Button_NextPending,
             AutoSize = true
         };
         _nextPendingButton.Click += (_, _) => SelectNextPendingConflict();
@@ -144,13 +150,53 @@ internal sealed class ConflictReviewForm : Form
 
         _discardGroupCheckBox = new CheckBox
         {
-            Text = "Discard Group",
+            Text = Strings.Checkbox_DiscardGroup,
             AutoSize = true,
             Padding = new Padding(0, 8, 0, 0)
         };
         _discardGroupCheckBox.CheckedChanged += (_, _) => ToggleGroupDiscardedState();
         detailLayout.Controls.Add(_discardGroupCheckBox, 0, 3);
 
+        RefreshConflictGroups(keepSelection: false);
+
+        LocalizationManager.LanguageChanged += HandleLanguageChanged;
+        FormClosed += (_, _) => LocalizationManager.LanguageChanged -= HandleLanguageChanged;
+    }
+
+    private void HandleLanguageChanged()
+    {
+        if (InvokeRequired)
+        {
+            BeginInvoke(new Action(ApplyLocalization));
+            return;
+        }
+
+        ApplyLocalization();
+    }
+
+    private void ApplyLocalization()
+    {
+        Text = Strings.ConflictReviewForm_Title;
+        _nextPendingButton.Text = Strings.Button_NextPending;
+        _discardGroupCheckBox.Text = Strings.Checkbox_DiscardGroup;
+
+        int filterIndex = _filterComboBox.SelectedIndex;
+        _filterComboBox.SelectedIndexChanged -= HandleFilterChanged;
+        _filterComboBox.Items.Clear();
+        _filterComboBox.Items.AddRange([
+            Strings.Filter_All,
+            Strings.Filter_Pending,
+            Strings.Filter_Resolved,
+            Strings.Filter_Discarded
+        ]);
+        _filterComboBox.SelectedIndex = filterIndex < 0 ? 0 : filterIndex;
+        _filterComboBox.SelectedIndexChanged += HandleFilterChanged;
+
+        RefreshConflictGroups(keepSelection: true);
+    }
+
+    private void HandleFilterChanged(object? sender, EventArgs e)
+    {
         RefreshConflictGroups(keepSelection: false);
     }
 
@@ -198,12 +244,17 @@ internal sealed class ConflictReviewForm : Form
 
         _summaryLabel.Text = _session is null
             ? string.Empty
-            : $"Conflicts {_session.ConflictGroups.Count} | Pending {_session.ConflictGroups.Count(group => string.Equals(group.ResolutionState, "Pending", StringComparison.OrdinalIgnoreCase))} | Resolved {_session.ConflictGroups.Count(group => string.Equals(group.ResolutionState, "Resolved", StringComparison.OrdinalIgnoreCase))} | Discarded {_session.ConflictGroups.Count(group => string.Equals(group.ResolutionState, "Discarded", StringComparison.OrdinalIgnoreCase))}";
+            : string.Format(
+                Strings.Info_ConflictSummary,
+                _session.ConflictGroups.Count,
+                _session.ConflictGroups.Count(group => string.Equals(group.ResolutionState, "Pending", StringComparison.OrdinalIgnoreCase)),
+                _session.ConflictGroups.Count(group => string.Equals(group.ResolutionState, "Resolved", StringComparison.OrdinalIgnoreCase)),
+                _session.ConflictGroups.Count(group => string.Equals(group.ResolutionState, "Discarded", StringComparison.OrdinalIgnoreCase)));
 
         if (groups.Count == 0)
         {
-            _groupHeaderLabel.Text = "No conflicts";
-            _groupStateLabel.Text = "This session currently has no cardId conflicts.";
+            _groupHeaderLabel.Text = Strings.Label_NoConflicts;
+            _groupStateLabel.Text = Strings.Help_NoConflicts;
             _discardGroupCheckBox.Checked = false;
             _discardGroupCheckBox.Enabled = false;
             ClearCandidateCards();
@@ -234,12 +285,11 @@ internal sealed class ConflictReviewForm : Form
         }
 
         IEnumerable<CardConflictGroup> groups = _session.ConflictGroups;
-        string filter = _filterComboBox.SelectedItem?.ToString() ?? "All";
-        groups = filter switch
+        groups = _filterComboBox.SelectedIndex switch
         {
-            "Pending" => groups.Where(group => string.Equals(group.ResolutionState, "Pending", StringComparison.OrdinalIgnoreCase)),
-            "Resolved" => groups.Where(group => string.Equals(group.ResolutionState, "Resolved", StringComparison.OrdinalIgnoreCase)),
-            "Discarded" => groups.Where(group => string.Equals(group.ResolutionState, "Discarded", StringComparison.OrdinalIgnoreCase)),
+            1 => groups.Where(group => string.Equals(group.ResolutionState, "Pending", StringComparison.OrdinalIgnoreCase)),
+            2 => groups.Where(group => string.Equals(group.ResolutionState, "Resolved", StringComparison.OrdinalIgnoreCase)),
+            3 => groups.Where(group => string.Equals(group.ResolutionState, "Discarded", StringComparison.OrdinalIgnoreCase)),
             _ => groups
         };
 
@@ -275,7 +325,7 @@ internal sealed class ConflictReviewForm : Form
 
         TextRenderer.DrawText(
             eventArgs.Graphics,
-            $"[{group.ResolutionState}]",
+            $"[{MainForm.LocalizeStatusName(group.ResolutionState)}]",
             font,
             stateRect,
             stateColor,
@@ -295,14 +345,18 @@ internal sealed class ConflictReviewForm : Form
     {
         if (_groupListBox.SelectedItem is not CardConflictGroup group || _session is null)
         {
-            _groupHeaderLabel.Text = "No conflict selected";
+            _groupHeaderLabel.Text = Strings.Label_NoConflictSelected;
             _groupStateLabel.Text = string.Empty;
             ClearCandidateCards();
             return;
         }
 
         _groupHeaderLabel.Text = $"{group.CanonicalName} [{group.Group}]";
-        _groupStateLabel.Text = $"cardId: {group.CardId} | candidates: {group.CandidateIds.Count} | state: {group.ResolutionState}";
+        _groupStateLabel.Text = string.Format(
+            Strings.Info_GroupDetails,
+            group.CardId,
+            group.CandidateIds.Count,
+            MainForm.LocalizeStatusName(group.ResolutionState));
         _suppressEvents = true;
         _discardGroupCheckBox.Enabled = true;
         _discardGroupCheckBox.Checked = string.Equals(group.ResolutionState, "Discarded", StringComparison.OrdinalIgnoreCase);
@@ -362,12 +416,12 @@ internal sealed class ConflictReviewForm : Form
             Font = new Font(Font, FontStyle.Bold),
             ForeColor = candidate.Selected ? Color.ForestGreen : candidate.Ignored ? Color.Goldenrod : Color.SteelBlue,
             Text = candidate.Selected
-                ? "Included"
+                ? Strings.Status_Included
                 : candidate.Ignored
-                    ? "Discarded"
+                    ? Strings.Status_Discarded
                     : string.Equals(group.ResolutionState, "Resolved", StringComparison.OrdinalIgnoreCase)
-                        ? "Resolved"
-                        : "Pending"
+                        ? Strings.Status_Resolved
+                        : Strings.Status_Pending
         };
         layout.Controls.Add(statusLabel, 0, 0);
 
@@ -381,10 +435,12 @@ internal sealed class ConflictReviewForm : Form
         previewBox.Image = LoadPreview(candidate.SourceAbsolutePath);
         layout.Controls.Add(previewBox, 0, 1);
 
-        layout.Controls.Add(CreateInfoLabel($"Package: {candidate.SourcePackageName}"), 0, 2);
-        layout.Controls.Add(CreateInfoLabel($"File: {candidate.FileName}"), 0, 3);
-        layout.Controls.Add(CreateInfoLabel($"Confidence: {candidate.Confidence:0.00}"), 0, 4);
-        layout.Controls.Add(CreateInfoLabel($"Reason: {candidate.MatchReason ?? "(none)"}"), 0, 5);
+        layout.Controls.Add(CreateInfoLabel(string.Format(Strings.Info_CandidatePackage, candidate.SourcePackageName)), 0, 2);
+        layout.Controls.Add(CreateInfoLabel(string.Format(Strings.Info_CandidateFile, candidate.FileName)), 0, 3);
+        layout.Controls.Add(CreateInfoLabel(string.Format(Strings.Info_CandidateConfidence, candidate.Confidence)), 0, 4);
+        layout.Controls.Add(CreateInfoLabel(string.Format(
+            Strings.Info_CandidateReason,
+            MainForm.LocalizeReason(candidate.MatchReason) ?? Strings.Text_None)), 0, 5);
 
         FlowLayoutPanel buttonPanel = new()
         {
@@ -397,7 +453,7 @@ internal sealed class ConflictReviewForm : Form
 
         CheckBox chooseCheckBox = new()
         {
-            Text = "Choose",
+            Text = Strings.Checkbox_Choose,
             AutoSize = true,
             Checked = candidate.Selected
         };

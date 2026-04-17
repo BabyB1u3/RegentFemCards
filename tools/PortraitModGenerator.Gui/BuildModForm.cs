@@ -1,6 +1,7 @@
 using System.Text.Json;
 using PortraitModGenerator.Core.Abstractions;
 using PortraitModGenerator.Core.Services;
+using PortraitModGenerator.Gui.Resources;
 
 namespace PortraitModGenerator.Gui;
 
@@ -26,6 +27,12 @@ internal sealed class BuildModForm : Form
     private readonly Button _buildButton;
     private readonly Label _statusLabel;
     private readonly ProgressBar _buildProgressBar;
+    private readonly GroupBox _generationGroup;
+    private readonly Label _modIdLabel;
+    private readonly Label _modNameLabel;
+    private readonly Label _authorLabel;
+    private readonly Label _descriptionLabel;
+    private readonly Label _artifactDirLabel;
 
     public BuildModForm(
         Func<MergedReviewSession?> sessionAccessor,
@@ -40,7 +47,7 @@ internal sealed class BuildModForm : Form
         _synchronizeSession = synchronizeSession;
         _draft = draft;
 
-        Text = "Build Mod";
+        Text = Strings.BuildModForm_Title;
         Width = 840;
         Height = 420;
         MinimumSize = new Size(760, 380);
@@ -57,13 +64,13 @@ internal sealed class BuildModForm : Form
         rootLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         Controls.Add(rootLayout);
 
-        GroupBox generationGroup = new()
+        _generationGroup = new GroupBox
         {
-            Text = "Build Settings",
+            Text = Strings.GroupBox_BuildSettings,
             Dock = DockStyle.Fill,
             Padding = new Padding(12)
         };
-        rootLayout.Controls.Add(generationGroup, 0, 0);
+        rootLayout.Controls.Add(_generationGroup, 0, 0);
 
         TableLayoutPanel generationLayout = new()
         {
@@ -75,31 +82,36 @@ internal sealed class BuildModForm : Form
         generationLayout.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         generationLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         generationLayout.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-        generationGroup.Controls.Add(generationLayout);
+        _generationGroup.Controls.Add(generationLayout);
 
-        generationLayout.Controls.Add(CreateFieldLabel("Mod ID:"), 0, 0);
+        _modIdLabel = CreateFieldLabel(Strings.Label_ModId);
+        generationLayout.Controls.Add(_modIdLabel, 0, 0);
         _modIdTextBox = CreateFieldTextBox();
         generationLayout.Controls.Add(_modIdTextBox, 1, 0);
 
-        generationLayout.Controls.Add(CreateFieldLabel("Mod Name:"), 0, 1);
+        _modNameLabel = CreateFieldLabel(Strings.Label_ModName);
+        generationLayout.Controls.Add(_modNameLabel, 0, 1);
         _modNameTextBox = CreateFieldTextBox();
         generationLayout.Controls.Add(_modNameTextBox, 1, 1);
 
-        generationLayout.Controls.Add(CreateFieldLabel("Author:"), 0, 2);
+        _authorLabel = CreateFieldLabel(Strings.Label_Author);
+        generationLayout.Controls.Add(_authorLabel, 0, 2);
         _authorTextBox = CreateFieldTextBox();
         generationLayout.Controls.Add(_authorTextBox, 1, 2);
 
-        generationLayout.Controls.Add(CreateFieldLabel("Description:"), 0, 3);
+        _descriptionLabel = CreateFieldLabel(Strings.Label_Description);
+        generationLayout.Controls.Add(_descriptionLabel, 0, 3);
         _descriptionTextBox = CreateFieldTextBox();
         generationLayout.Controls.Add(_descriptionTextBox, 1, 3);
 
-        generationLayout.Controls.Add(CreateFieldLabel("Artifact Dir:"), 0, 4);
+        _artifactDirLabel = CreateFieldLabel(Strings.Label_ArtifactDir);
+        generationLayout.Controls.Add(_artifactDirLabel, 0, 4);
         _outputDirectoryTextBox = CreateFieldTextBox();
         generationLayout.Controls.Add(_outputDirectoryTextBox, 1, 4);
 
         _browseOutputButton = new Button
         {
-            Text = "Browse",
+            Text = Strings.Button_Browse,
             AutoSize = true
         };
         _browseOutputButton.Click += (_, _) => BrowseOutputDirectory();
@@ -107,7 +119,7 @@ internal sealed class BuildModForm : Form
 
         _buildButton = new Button
         {
-            Text = "Build Mod",
+            Text = Strings.Button_BuildMod,
             AutoSize = true
         };
         _buildButton.Click += async (_, _) => await GenerateModProjectAsync();
@@ -131,11 +143,39 @@ internal sealed class BuildModForm : Form
             AutoSize = true,
             MaximumSize = new Size(760, 0),
             Padding = new Padding(0, 4, 0, 0),
-            Text = "Resolve conflicts, then build the final mod output here."
+            Text = Strings.Help_BuildModPrompt
         };
         rootLayout.Controls.Add(_statusLabel, 0, 1);
 
         ApplyDraftToControls();
+
+        LocalizationManager.LanguageChanged += HandleLanguageChanged;
+        FormClosed += (_, _) => LocalizationManager.LanguageChanged -= HandleLanguageChanged;
+    }
+
+    private void HandleLanguageChanged()
+    {
+        if (InvokeRequired)
+        {
+            BeginInvoke(new Action(ApplyLocalization));
+            return;
+        }
+
+        ApplyLocalization();
+    }
+
+    private void ApplyLocalization()
+    {
+        Text = Strings.BuildModForm_Title;
+        _generationGroup.Text = Strings.GroupBox_BuildSettings;
+        _modIdLabel.Text = Strings.Label_ModId;
+        _modNameLabel.Text = Strings.Label_ModName;
+        _authorLabel.Text = Strings.Label_Author;
+        _descriptionLabel.Text = Strings.Label_Description;
+        _artifactDirLabel.Text = Strings.Label_ArtifactDir;
+        _browseOutputButton.Text = Strings.Button_Browse;
+        _buildButton.Text = Strings.Button_BuildMod;
+        _statusLabel.Text = Strings.Help_BuildModPrompt;
     }
 
     public void ApplySuggestedModId(string suggestedModId)
@@ -226,7 +266,7 @@ internal sealed class BuildModForm : Form
         string? officialCardIndexPath = _officialCardIndexPathAccessor();
         if (session is null || string.IsNullOrWhiteSpace(officialCardIndexPath))
         {
-            MessageBox.Show(this, "Import and review portrait PCK packages first.", "Build mod", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show(this, Strings.Error_ImportAndReviewFirst, Strings.Dialog_BuildMod_Title, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
         }
 
@@ -241,11 +281,11 @@ internal sealed class BuildModForm : Form
             string.Equals(group.ResolutionState, "Pending", StringComparison.OrdinalIgnoreCase));
         if (pendingConflictCount > 0)
         {
-            _statusLabel.Text = $"Build blocked. Resolve {pendingConflictCount} pending conflict group(s) first.";
+            _statusLabel.Text = string.Format(Strings.Status_BuildBlocked, pendingConflictCount);
             MessageBox.Show(
                 this,
-                $"There are {pendingConflictCount} unresolved conflict group(s).\n\nResolve or discard every conflict group before building the mod.",
-                "Resolve conflicts first",
+                string.Format(Strings.Error_PendingConflicts, pendingConflictCount),
+                Strings.Dialog_ResolveConflictsFirst_Title,
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Warning);
             return;
@@ -256,14 +296,14 @@ internal sealed class BuildModForm : Form
         {
             DialogResult pendingDecision = MessageBox.Show(
                 this,
-                $"There are {unmatchedCount} unmatched asset(s) that will be skipped during generation.\n\nDo you want to continue anyway?",
-                "Unmatched assets",
+                string.Format(Strings.Warn_UnmatchedAssets, unmatchedCount),
+                Strings.Dialog_UnmatchedAssets_Title,
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning);
 
             if (pendingDecision != DialogResult.Yes)
             {
-                _statusLabel.Text = $"Generation cancelled. {unmatchedCount} unmatched asset(s) still need review.";
+                _statusLabel.Text = string.Format(Strings.Status_GenerationCancelled, unmatchedCount);
                 return;
             }
         }
@@ -272,13 +312,13 @@ internal sealed class BuildModForm : Form
 
         if (string.IsNullOrWhiteSpace(_draft.ModId))
         {
-            MessageBox.Show(this, "Mod ID is required.", "Build mod", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show(this, Strings.Error_ModIdRequired, Strings.Dialog_BuildMod_Title, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
         }
 
         if (string.IsNullOrWhiteSpace(_draft.ArtifactOutputParent))
         {
-            MessageBox.Show(this, "Artifact output directory is required.", "Build mod", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show(this, Strings.Error_ArtifactDirRequired, Strings.Dialog_BuildMod_Title, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
         }
 
@@ -292,14 +332,14 @@ internal sealed class BuildModForm : Form
         try
         {
             UseWaitCursor = true;
-            SetBuildBusy(true, "Preparing mod build...");
+            SetBuildBusy(true, Strings.Status_PreparingBuild);
 
             Directory.CreateDirectory(Path.GetFullPath(_draft.ArtifactOutputParent));
 
             IProgress<string> progress = new Progress<string>(status => _statusLabel.Text = status);
             ModBuildResult buildResult = await Task.Run(() =>
             {
-                progress.Report("Generating cached source tree");
+                progress.Report(Strings.Status_GeneratingSource);
                 TemplateProjectGenerator templateGenerator = new();
                 TemplateGenerationResult generationResult = templateGenerator.Generate(new TemplateGenerationRequest
                 {
@@ -310,18 +350,18 @@ internal sealed class BuildModForm : Form
                     {
                         ["__MOD_ID__"] = _draft.ModId,
                         ["__MOD_NAME__"] = string.IsNullOrWhiteSpace(_draft.ModName) ? _draft.ModId : _draft.ModName,
-                        ["__AUTHOR__"] = string.IsNullOrWhiteSpace(_draft.Author) ? "Unknown Author" : _draft.Author,
-                        ["__DESCRIPTION__"] = string.IsNullOrWhiteSpace(_draft.Description) ? "Generated portrait replacement mod" : _draft.Description,
+                        ["__AUTHOR__"] = string.IsNullOrWhiteSpace(_draft.Author) ? Strings.Default_UnknownAuthor : _draft.Author,
+                        ["__DESCRIPTION__"] = string.IsNullOrWhiteSpace(_draft.Description) ? Strings.Default_ModDescription : _draft.Description,
                         ["__VERSION__"] = "v0.1.0"
                     }
                 });
 
-                progress.Report("Writing reviewed mapping data");
+                progress.Report(Strings.Status_WritingReview);
                 session.OfficialCardIndexPath = officialCardIndexPath;
                 session.OutputJsonPath = reviewPath;
                 File.WriteAllText(reviewPath, JsonSerializer.Serialize(session, JsonOptions));
 
-                progress.Report("Materializing portraits and config");
+                progress.Report(Strings.Status_Materializing);
                 MappingMaterializer materializer = new();
                 materializer.Materialize(new MaterializeMappingsRequest
                 {
@@ -330,7 +370,7 @@ internal sealed class BuildModForm : Form
                     ModId = _draft.ModId
                 });
 
-                progress.Report("Building final mod artifacts");
+                progress.Report(Strings.Status_BuildingFinal);
                 ModBuildService buildService = new();
                 return buildService.Build(new ModBuildRequest
                 {
@@ -344,21 +384,21 @@ internal sealed class BuildModForm : Form
                 });
             });
 
-            _statusLabel.Text = $"Built mod to {artifactOutputDirectory}";
+            _statusLabel.Text = string.Format(Strings.Status_BuiltTo, artifactOutputDirectory);
             MessageBox.Show(
                 this,
-                $"Built mod output:\n{artifactOutputDirectory}\n\nBuild log:\n{buildResult.LogFilePath}",
-                "Build mod",
+                string.Format(Strings.Info_BuildSuccess, artifactOutputDirectory, buildResult.LogFilePath),
+                Strings.Dialog_BuildMod_Title,
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
         }
         catch (Exception ex)
         {
-            string logMessage = File.Exists(buildLogPath)
-                ? $"\n\nBuild log:\n{buildLogPath}"
-                : string.Empty;
-            _statusLabel.Text = $"Build failed. Log: {buildLogPath}";
-            MessageBox.Show(this, $"{ex.Message}{logMessage}", "Build mod failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            string body = File.Exists(buildLogPath)
+                ? string.Format(Strings.Info_BuildFailedWithLog, ex.Message, buildLogPath)
+                : ex.Message;
+            _statusLabel.Text = string.Format(Strings.Status_BuildFailed, buildLogPath);
+            MessageBox.Show(this, body, Strings.Dialog_BuildModFailed_Title, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally
         {

@@ -2,6 +2,7 @@ using System.Windows.Forms;
 using PortraitModGenerator.Core.Abstractions;
 using PortraitModGenerator.Core.Models;
 using PortraitModGenerator.Core.Services;
+using PortraitModGenerator.Gui.Resources;
 
 namespace PortraitModGenerator.Gui;
 
@@ -27,6 +28,19 @@ public sealed class MainForm : Form
     private readonly Label _summaryLabel;
     private readonly Button _updateMappingButton;
     private readonly Panel _detailsPanel;
+    private readonly Label _groupLabel;
+    private readonly Label _manualCardLabel;
+    private readonly Label _helpLabel;
+    private readonly MenuStrip _menuStrip;
+    private readonly ToolStripMenuItem _menuFile;
+    private readonly ToolStripMenuItem _menuFileOpen;
+    private readonly ToolStripMenuItem _menuFileExit;
+    private readonly ToolStripMenuItem _menuBuild;
+    private readonly ToolStripMenuItem _menuBuildMod;
+    private readonly ToolStripMenuItem _menuView;
+    private readonly ToolStripMenuItem _menuViewLanguage;
+    private readonly ToolStripMenuItem _menuLangEnglish;
+    private readonly ToolStripMenuItem _menuLangChinese;
 
     private string? _analysisPath;
     private string? _officialCardIndexPath;
@@ -40,7 +54,7 @@ public sealed class MainForm : Form
 
     public MainForm()
     {
-        Text = "Portrait Mod Generator - Mapping Review";
+        Text = Strings.MainForm_Title;
         Width = 1850;
         Height = 1070;
         StartPosition = FormStartPosition.CenterScreen;
@@ -72,7 +86,7 @@ public sealed class MainForm : Form
 
         _loadAnalysisButton = new Button
         {
-            Text = "Import PCK",
+            Text = Strings.Button_ImportPck,
             AutoSize = true
         };
         _loadAnalysisButton.Click += async (_, _) => await ImportPckFromDialogAsync();
@@ -80,7 +94,7 @@ public sealed class MainForm : Form
 
         _openConflictsButton = new Button
         {
-            Text = "Open Conflicts",
+            Text = Strings.Button_OpenConflicts,
             AutoSize = true,
             Enabled = false
         };
@@ -89,7 +103,7 @@ public sealed class MainForm : Form
 
         _openBuildModButton = new Button
         {
-            Text = "Build Mod",
+            Text = Strings.Button_BuildMod,
             AutoSize = true,
             Enabled = false
         };
@@ -101,15 +115,21 @@ public sealed class MainForm : Form
             Width = 180,
             DropDownStyle = ComboBoxStyle.DropDownList
         };
-        _filterComboBox.Items.AddRange(["All", "Included", "Conflict", "Unmatched", "Discarded"]);
+        _filterComboBox.Items.AddRange([
+            Strings.Filter_All,
+            Strings.Filter_Included,
+            Strings.Filter_Conflict,
+            Strings.Filter_Unmatched,
+            Strings.Filter_Discarded
+        ]);
         _filterComboBox.SelectedIndex = 0;
-        _filterComboBox.SelectedIndexChanged += (_, _) => RefreshAssetList();
+        _filterComboBox.SelectedIndexChanged += HandleFilterChanged;
         toolbar.Controls.Add(_filterComboBox);
 
         _searchTextBox = new TextBox
         {
             Width = 260,
-            PlaceholderText = "Search file name or card id"
+            PlaceholderText = Strings.Placeholder_SearchAssets
         };
         _searchTextBox.TextChanged += (_, _) => RefreshAssetList();
         toolbar.Controls.Add(_searchTextBox);
@@ -244,7 +264,7 @@ public sealed class MainForm : Form
 
         _discardCheckBox = new CheckBox
         {
-            Text = "Discard",
+            Text = Strings.Checkbox_Discard,
             AutoSize = true
         };
         _discardCheckBox.CheckedChanged += (_, _) => ApplyDiscardState();
@@ -258,13 +278,13 @@ public sealed class MainForm : Form
         };
         detailsContentLayout.Controls.Add(cardPanel, 0, 4);
 
-        Label cardLabel = new()
+        _groupLabel = new Label
         {
-            Text = "Group:",
+            Text = Strings.Label_Group,
             AutoSize = true,
             Padding = new Padding(0, 8, 8, 0)
         };
-        cardPanel.Controls.Add(cardLabel);
+        cardPanel.Controls.Add(_groupLabel);
 
         _groupComboBox = new ComboBox
         {
@@ -274,13 +294,13 @@ public sealed class MainForm : Form
         _groupComboBox.SelectedIndexChanged += (_, _) => ApplyGroupFilter();
         cardPanel.Controls.Add(_groupComboBox);
 
-        Label manualCardLabel = new()
+        _manualCardLabel = new Label
         {
-            Text = "Card:",
+            Text = Strings.Label_Card,
             AutoSize = true,
             Padding = new Padding(12, 8, 8, 0)
         };
-        cardPanel.Controls.Add(manualCardLabel);
+        cardPanel.Controls.Add(_manualCardLabel);
 
         _cardComboBox = new ComboBox
         {
@@ -296,7 +316,7 @@ public sealed class MainForm : Form
 
         _updateMappingButton = new Button
         {
-            Text = "Update Mapping",
+            Text = Strings.Button_UpdateMapping,
             AutoSize = true,
             Enabled = false,
             Margin = new Padding(12, 3, 3, 3)
@@ -304,14 +324,139 @@ public sealed class MainForm : Form
         _updateMappingButton.Click += (_, _) => ApplyManualCardSelection();
         cardPanel.Controls.Add(_updateMappingButton);
 
-        Label helpLabel = CreateInfoLabel();
-        helpLabel.Text = "Use the card dropdown to assign unmatched images, or discard assets that should not enter the final mod.";
-        detailsContentLayout.Controls.Add(helpLabel, 0, 5);
+        _helpLabel = CreateInfoLabel();
+        _helpLabel.Text = Strings.Help_MappingReview;
+        detailsContentLayout.Controls.Add(_helpLabel, 0, 5);
 
-        _analysisPathLabel.Text = "Import one or more portrait PCK files to begin review.";
-        _importStatusLabel.Text = $"GDRE: {AppPaths.GdreToolsPath} | Cache: {AppPaths.CacheRoot}";
+        _analysisPathLabel.Text = Strings.Help_ImportToBegin;
+        _importStatusLabel.Text = string.Format(Strings.Info_GdreCache, AppPaths.GdreToolsPath, AppPaths.CacheRoot);
+
+        _menuFileOpen = new ToolStripMenuItem(Strings.Menu_File_Open)
+        {
+            ShortcutKeys = Keys.Control | Keys.O
+        };
+        _menuFileOpen.Click += async (_, _) => await ImportPckFromDialogAsync();
+
+        _menuFileExit = new ToolStripMenuItem(Strings.Menu_File_Exit);
+        _menuFileExit.Click += (_, _) => Close();
+
+        _menuFile = new ToolStripMenuItem(Strings.Menu_File);
+        _menuFile.DropDownItems.Add(_menuFileOpen);
+        _menuFile.DropDownItems.Add(new ToolStripSeparator());
+        _menuFile.DropDownItems.Add(_menuFileExit);
+
+        _menuBuildMod = new ToolStripMenuItem(Strings.Menu_Build_BuildMod);
+        _menuBuildMod.Click += (_, _) => OpenBuildModWindow();
+
+        _menuBuild = new ToolStripMenuItem(Strings.Menu_Build);
+        _menuBuild.DropDownItems.Add(_menuBuildMod);
+
+        _menuLangEnglish = new ToolStripMenuItem("English");
+        _menuLangEnglish.Click += (_, _) => LocalizationManager.SetLanguage(LocalizationManager.English);
+
+        _menuLangChinese = new ToolStripMenuItem("简体中文");
+        _menuLangChinese.Click += (_, _) => LocalizationManager.SetLanguage(LocalizationManager.Chinese);
+
+        _menuViewLanguage = new ToolStripMenuItem(Strings.Menu_View_Language);
+        _menuViewLanguage.DropDownItems.Add(_menuLangEnglish);
+        _menuViewLanguage.DropDownItems.Add(_menuLangChinese);
+
+        _menuView = new ToolStripMenuItem(Strings.Menu_View);
+        _menuView.DropDownItems.Add(_menuViewLanguage);
+
+        _menuStrip = new MenuStrip
+        {
+            Dock = DockStyle.Top
+        };
+        _menuStrip.Items.Add(_menuFile);
+        _menuStrip.Items.Add(_menuBuild);
+        _menuStrip.Items.Add(_menuView);
+        MainMenuStrip = _menuStrip;
+        Controls.Add(_menuStrip);
+
+        UpdateLanguageMenuChecks();
+
+        LocalizationManager.LanguageChanged += HandleLanguageChanged;
+        FormClosed += (_, _) => LocalizationManager.LanguageChanged -= HandleLanguageChanged;
 
         EnablePckDragDrop(rootLayout);
+    }
+
+    private void HandleLanguageChanged()
+    {
+        if (InvokeRequired)
+        {
+            BeginInvoke(new Action(ApplyLocalization));
+            return;
+        }
+
+        ApplyLocalization();
+    }
+
+    private void ApplyLocalization()
+    {
+        Text = Strings.MainForm_Title;
+
+        _loadAnalysisButton.Text = Strings.Button_ImportPck;
+        _openConflictsButton.Text = Strings.Button_OpenConflicts;
+        _openBuildModButton.Text = Strings.Button_BuildMod;
+        _updateMappingButton.Text = Strings.Button_UpdateMapping;
+
+        _searchTextBox.PlaceholderText = Strings.Placeholder_SearchAssets;
+
+        _discardCheckBox.Text = Strings.Checkbox_Discard;
+        _groupLabel.Text = Strings.Label_Group;
+        _manualCardLabel.Text = Strings.Label_Card;
+        _helpLabel.Text = Strings.Help_MappingReview;
+
+        _menuFile.Text = Strings.Menu_File;
+        _menuFileOpen.Text = Strings.Menu_File_Open;
+        _menuFileExit.Text = Strings.Menu_File_Exit;
+        _menuBuild.Text = Strings.Menu_Build;
+        _menuBuildMod.Text = Strings.Menu_Build_BuildMod;
+        _menuView.Text = Strings.Menu_View;
+        _menuViewLanguage.Text = Strings.Menu_View_Language;
+
+        UpdateLanguageMenuChecks();
+
+        int filterIndex = _filterComboBox.SelectedIndex;
+        _filterComboBox.SelectedIndexChanged -= HandleFilterChanged;
+        _filterComboBox.Items.Clear();
+        _filterComboBox.Items.AddRange([
+            Strings.Filter_All,
+            Strings.Filter_Included,
+            Strings.Filter_Conflict,
+            Strings.Filter_Unmatched,
+            Strings.Filter_Discarded
+        ]);
+        _filterComboBox.SelectedIndex = filterIndex < 0 ? 0 : filterIndex;
+        _filterComboBox.SelectedIndexChanged += HandleFilterChanged;
+
+        if (_session is null)
+        {
+            _analysisPathLabel.Text = Strings.Help_ImportToBegin;
+        }
+        else if (!string.IsNullOrWhiteSpace(_analysisPath))
+        {
+            _analysisPathLabel.Text = string.Format(Strings.Info_SessionPath, _analysisPath);
+        }
+
+        _importStatusLabel.Text = string.Format(Strings.Info_GdreCache, AppPaths.GdreToolsPath, AppPaths.CacheRoot);
+
+        RefreshAssetList();
+        _assetListBox.Invalidate();
+    }
+
+    private void UpdateLanguageMenuChecks()
+    {
+        string current = LocalizationManager.CurrentCulture.Name;
+        _menuLangEnglish.Checked = string.Equals(current, LocalizationManager.English.Name, StringComparison.OrdinalIgnoreCase);
+        _menuLangChinese.Checked = string.Equals(current, LocalizationManager.Chinese.Name, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void HandleFilterChanged(object? sender, EventArgs e)
+    {
+        RefreshAssetList();
     }
 
     private static Label CreateInfoLabel()
@@ -328,8 +473,8 @@ public sealed class MainForm : Form
     {
         using OpenFileDialog dialog = new()
         {
-            Title = "Import portrait PCK",
-            Filter = "PCK files (*.pck)|*.pck|All files (*.*)|*.*",
+            Title = Strings.Dialog_ImportPckFilePicker_Title,
+            Filter = Strings.Dialog_PckFileFilter,
             Multiselect = true
         };
 
@@ -395,8 +540,8 @@ public sealed class MainForm : Form
         {
             MessageBox.Show(
                 this,
-                $"GDRETools was not found.\nExpected at:\n{gdreToolsPath}",
-                "Import PCK",
+                string.Format(Strings.Error_GdreNotFound, gdreToolsPath),
+                Strings.Dialog_ImportPck_Title,
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error);
             return;
@@ -421,7 +566,7 @@ public sealed class MainForm : Form
         {
             UseWaitCursor = true;
             TogglePrimaryActions(enabled: false);
-            SetImportBusy(true, $"Importing {normalizedPckPaths.Length} PCK file(s) into {sessionRoot}");
+            SetImportBusy(true, string.Format(Strings.Status_ImportingPcks, normalizedPckPaths.Length, sessionRoot));
 
             IProgress<string> progress = new Progress<string>(status => _importStatusLabel.Text = status);
             await Task.Run(() =>
@@ -437,7 +582,7 @@ public sealed class MainForm : Form
                 {
                     if (packages.Any(package => string.Equals(package.SourcePckPath, sourcePckPath, StringComparison.OrdinalIgnoreCase)))
                     {
-                        progress.Report($"Skipping already imported package: {Path.GetFileName(sourcePckPath)}");
+                        progress.Report(string.Format(Strings.Status_SkippingAlreadyImported, Path.GetFileName(sourcePckPath)));
                         continue;
                     }
 
@@ -447,7 +592,7 @@ public sealed class MainForm : Form
                     string scanJsonPath = Path.Combine(packageRoot, "asset_scan_result.json");
                     string mappingJsonPath = Path.Combine(packageRoot, "mapping_analysis_result.json");
 
-                    progress.Report($"Recovering {Path.GetFileName(sourcePckPath)}");
+                    progress.Report(string.Format(Strings.Status_Recovering, Path.GetFileName(sourcePckPath)));
                     GdrePckImporter importer = new();
                     importer.Import(new PckImportRequest
                     {
@@ -457,7 +602,7 @@ public sealed class MainForm : Form
                         OverwriteOutput = true
                     });
 
-                    progress.Report($"Scanning extracted images from {Path.GetFileName(sourcePckPath)}");
+                    progress.Report(string.Format(Strings.Status_Scanning, Path.GetFileName(sourcePckPath)));
                     AssetScanner scanner = new();
                     scanner.Scan(new AssetScanRequest
                     {
@@ -465,7 +610,7 @@ public sealed class MainForm : Form
                         OutputJsonPath = scanJsonPath
                     });
 
-                    progress.Report($"Analyzing mapping candidates for {Path.GetFileName(sourcePckPath)}");
+                    progress.Report(string.Format(Strings.Status_AnalyzingMappings, Path.GetFileName(sourcePckPath)));
                     MappingAnalyzer analyzer = new();
                     analyzer.Analyze(new MappingAnalysisRequest
                     {
@@ -488,7 +633,7 @@ public sealed class MainForm : Form
                     nextImportOrder++;
                 }
 
-                progress.Report("Merging package analyses into a review session");
+                progress.Report(Strings.Status_Merging);
                 MergeMappingsService mergeService = new();
                 MergedReviewSession mergedSession = mergeService.Merge(new MergeMappingsRequest
                 {
@@ -507,7 +652,7 @@ public sealed class MainForm : Form
                 BindSession(_session, mergedJsonPath);
             }
 
-            _importStatusLabel.Text = $"Imported {normalizedPckPaths.Length} package(s) | Session: {sessionRoot}";
+            _importStatusLabel.Text = string.Format(Strings.Status_ImportedCount, normalizedPckPaths.Length, sessionRoot);
 
             if (string.IsNullOrWhiteSpace(_buildModDraft.ModId) || string.Equals(_buildModDraft.ModId, "GeneratedPortraitMod", StringComparison.Ordinal))
             {
@@ -528,8 +673,8 @@ public sealed class MainForm : Form
         }
         catch (Exception ex)
         {
-            _importStatusLabel.Text = $"Import failed: {ex.Message}";
-            MessageBox.Show(this, ex.Message, "Import PCK failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            _importStatusLabel.Text = string.Format(Strings.Status_ImportFailed, ex.Message);
+            MessageBox.Show(this, ex.Message, Strings.Dialog_ImportPckFailed_Title, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally
         {
@@ -552,7 +697,7 @@ public sealed class MainForm : Form
         session.OutputJsonPath = sessionPath;
 
         _session = session;
-        _analysisPathLabel.Text = $"Session: {sessionPath}";
+        _analysisPathLabel.Text = string.Format(Strings.Info_SessionPath, sessionPath);
         BindPackageList();
         RefreshAssetList();
         if (_conflictReviewForm is not null && !_conflictReviewForm.IsDisposed)
@@ -643,13 +788,12 @@ public sealed class MainForm : Form
         }
 
         IEnumerable<MergedMappingCandidate> filtered = _session.Candidates;
-        string filter = _filterComboBox.SelectedItem?.ToString() ?? "All";
-        filtered = filter switch
+        filtered = _filterComboBox.SelectedIndex switch
         {
-            "Included" => filtered.Where(candidate => string.Equals(GetCandidateStatusName(candidate), "Included", StringComparison.Ordinal)),
-            "Conflict" => filtered.Where(candidate => string.Equals(GetCandidateStatusName(candidate), "Conflict", StringComparison.Ordinal)),
-            "Unmatched" => filtered.Where(candidate => !candidate.Ignored && string.IsNullOrWhiteSpace(candidate.MatchedCardId)),
-            "Discarded" => filtered.Where(candidate => string.Equals(GetCandidateStatusName(candidate), "Discarded", StringComparison.Ordinal)),
+            1 => filtered.Where(candidate => string.Equals(GetCandidateStatusName(candidate), "Included", StringComparison.Ordinal)),
+            2 => filtered.Where(candidate => string.Equals(GetCandidateStatusName(candidate), "Conflict", StringComparison.Ordinal)),
+            3 => filtered.Where(candidate => !candidate.Ignored && string.IsNullOrWhiteSpace(candidate.MatchedCardId)),
+            4 => filtered.Where(candidate => string.Equals(GetCandidateStatusName(candidate), "Discarded", StringComparison.Ordinal)),
             _ => filtered
         };
 
@@ -675,8 +819,15 @@ public sealed class MainForm : Form
         int discardedCount = _session.Candidates.Count(candidate => string.Equals(GetCandidateStatusName(candidate), "Discarded", StringComparison.Ordinal));
         int pendingConflictGroups = _session.ConflictGroups.Count(group => string.Equals(group.ResolutionState, "Pending", StringComparison.OrdinalIgnoreCase));
 
-        _summaryLabel.Text =
-            $"Packages {_session.Packages.Count} | Visible {items.Count} | Included {includedCount} | Conflict {conflictCount} | Unmatched {unmatchedCount} | Discarded {discardedCount} | Pending Groups {pendingConflictGroups}";
+        _summaryLabel.Text = string.Format(
+            Strings.Info_MainSummary,
+            _session.Packages.Count,
+            items.Count,
+            includedCount,
+            conflictCount,
+            unmatchedCount,
+            discardedCount,
+            pendingConflictGroups);
 
         if (items.Count > 0)
         {
@@ -744,7 +895,7 @@ public sealed class MainForm : Form
         TextRenderer.DrawText(
             eventArgs.Graphics,
             string.Equals(candidateState, "Conflict", StringComparison.Ordinal)
-                ? $"{GetConflictCandidateCount(candidate)} candidates"
+                ? string.Format(Strings.Info_ConflictCandidateCount, GetConflictCandidateCount(candidate))
                 : $"{candidate.SourcePackageName} / {candidate.FileName}",
             font,
             sourceRect,
@@ -770,13 +921,13 @@ public sealed class MainForm : Form
         string candidateState = GetCandidateStatusName(candidate);
         if (string.Equals(candidateState, "Discarded", StringComparison.Ordinal))
         {
-            DrawBadge(graphics, targetRect, "Discarded", Color.DimGray, badgeFont);
+            DrawBadge(graphics, targetRect, Strings.Status_Discarded, Color.DimGray, badgeFont);
             return;
         }
 
         if (string.Equals(candidateState, "Unmatched", StringComparison.Ordinal))
         {
-            DrawBadge(graphics, targetRect, "Unmatched", Color.IndianRed, badgeFont);
+            DrawBadge(graphics, targetRect, Strings.Status_Unmatched, Color.IndianRed, badgeFont);
             return;
         }
 
@@ -823,10 +974,10 @@ public sealed class MainForm : Form
     {
         return GetCandidateStatusName(candidate) switch
         {
-            "Discarded" => "[Discarded]",
-            "Unmatched" => "[Unmatched]",
-            "Conflict" => "[Conflict]",
-            _ => "[Included]"
+            "Discarded" => Strings.Badge_Discarded,
+            "Unmatched" => Strings.Badge_Unmatched,
+            "Conflict" => Strings.Badge_Conflict,
+            _ => Strings.Badge_Included
         };
     }
 
@@ -888,8 +1039,28 @@ public sealed class MainForm : Form
     {
         return candidate.CanonicalName
                ?? candidate.MatchedCardId
-               ?? "(unknown)";
+               ?? Strings.Text_Unknown;
     }
+
+    internal static string LocalizeStatusName(string canonical) => canonical switch
+    {
+        "Included" => Strings.Status_Included,
+        "Discarded" => Strings.Status_Discarded,
+        "Unmatched" => Strings.Status_Unmatched,
+        "Conflict" => Strings.Status_Conflict,
+        "Pending" => Strings.Status_Pending,
+        "Resolved" => Strings.Status_Resolved,
+        _ => canonical
+    };
+
+    internal static string? LocalizeReason(string? reason) => reason switch
+    {
+        null => null,
+        "Discarded during manual review." => Strings.Reason_DiscardedManual,
+        "Manually assigned in GUI." => Strings.Reason_ManuallyAssigned,
+        "Discarded in conflicts review." => Strings.Reason_DiscardedInConflict,
+        _ => reason
+    };
 
     private void BindSelectedItem()
     {
@@ -922,10 +1093,17 @@ public sealed class MainForm : Form
                 return;
             }
 
-            string candidateStatus = GetCandidateStatusName(candidate);
-            _statusLabel.Text = $"Status: {candidateStatus} | Card: {candidate.CanonicalName ?? "(none)"} | Group: {candidate.Group ?? "(none)"} | Package: {candidate.SourcePackageName}";
-            _pathLabel.Text = $"Path: {candidate.SourceRelativePath}";
-            _reasonLabel.Text = $"Reason: {candidate.MatchReason ?? candidate.IgnoredReason ?? "(none)"}";
+            string candidateStatus = LocalizeStatusName(GetCandidateStatusName(candidate));
+            _statusLabel.Text = string.Format(
+                Strings.Info_CandidateStatus,
+                candidateStatus,
+                candidate.CanonicalName ?? Strings.Text_None,
+                candidate.Group ?? Strings.Text_None,
+                candidate.SourcePackageName);
+            _pathLabel.Text = string.Format(Strings.Info_CandidatePath, candidate.SourceRelativePath);
+            _reasonLabel.Text = string.Format(
+                Strings.Info_CandidateReason,
+                LocalizeReason(candidate.MatchReason ?? candidate.IgnoredReason) ?? Strings.Text_None);
             _discardCheckBox.Checked = candidate.Ignored;
             BindCardSelection(candidate);
             LoadPreview(candidate.SourceAbsolutePath);
@@ -1200,7 +1378,7 @@ public sealed class MainForm : Form
     {
         if (_session is null)
         {
-            MessageBox.Show(this, "Import and merge packages first.", "Conflicts", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, Strings.Error_ImportFirst, Strings.Dialog_Conflicts_Title, MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }
 
@@ -1220,7 +1398,7 @@ public sealed class MainForm : Form
     {
         if (_session is null)
         {
-            MessageBox.Show(this, "Import and review portrait PCK packages first.", "Build mod", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, Strings.Error_ImportAndReviewFirst, Strings.Dialog_BuildMod_Title, MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }
 

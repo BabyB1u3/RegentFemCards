@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="MainForm_Title" xml:space="preserve">
+    <value>立绘 Mod 生成器 - 映射审核</value>
+  </data>
+  <data name="BuildModForm_Title" xml:space="preserve">
+    <value>构建 Mod</value>
+  </data>
+  <data name="ConflictReviewForm_Title" xml:space="preserve">
+    <value>冲突审核</value>
+  </data>
+  <data name="Button_ImportPck" xml:space="preserve">
+    <value>导入 PCK</value>
+  </data>
+  <data name="Button_OpenConflicts" xml:space="preserve">
+    <value>处理冲突</value>
+  </data>
+  <data name="Button_BuildMod" xml:space="preserve">
+    <value>构建 Mod</value>
+  </data>
+  <data name="Button_UpdateMapping" xml:space="preserve">
+    <value>更新映射</value>
+  </data>
+  <data name="Button_NextPending" xml:space="preserve">
+    <value>下一个待处理</value>
+  </data>
+  <data name="Button_Browse" xml:space="preserve">
+    <value>浏览</value>
+  </data>
+  <data name="Filter_All" xml:space="preserve">
+    <value>全部</value>
+  </data>
+  <data name="Filter_Included" xml:space="preserve">
+    <value>已纳入</value>
+  </data>
+  <data name="Filter_Conflict" xml:space="preserve">
+    <value>冲突</value>
+  </data>
+  <data name="Filter_Unmatched" xml:space="preserve">
+    <value>未匹配</value>
+  </data>
+  <data name="Filter_Discarded" xml:space="preserve">
+    <value>已丢弃</value>
+  </data>
+  <data name="Filter_Pending" xml:space="preserve">
+    <value>待处理</value>
+  </data>
+  <data name="Filter_Resolved" xml:space="preserve">
+    <value>已解决</value>
+  </data>
+  <data name="Label_Group" xml:space="preserve">
+    <value>分组：</value>
+  </data>
+  <data name="Label_Card" xml:space="preserve">
+    <value>卡牌：</value>
+  </data>
+  <data name="Label_ModId" xml:space="preserve">
+    <value>Mod ID：</value>
+  </data>
+  <data name="Label_ModName" xml:space="preserve">
+    <value>Mod 名称：</value>
+  </data>
+  <data name="Label_Author" xml:space="preserve">
+    <value>作者：</value>
+  </data>
+  <data name="Label_Description" xml:space="preserve">
+    <value>描述：</value>
+  </data>
+  <data name="Label_ArtifactDir" xml:space="preserve">
+    <value>产物目录：</value>
+  </data>
+  <data name="Label_NoConflicts" xml:space="preserve">
+    <value>无冲突</value>
+  </data>
+  <data name="Label_NoConflictSelected" xml:space="preserve">
+    <value>未选择冲突</value>
+  </data>
+  <data name="Placeholder_SearchAssets" xml:space="preserve">
+    <value>搜索文件名或 cardId</value>
+  </data>
+  <data name="Checkbox_Discard" xml:space="preserve">
+    <value>丢弃</value>
+  </data>
+  <data name="Checkbox_DiscardGroup" xml:space="preserve">
+    <value>丢弃此分组</value>
+  </data>
+  <data name="Checkbox_Choose" xml:space="preserve">
+    <value>选择</value>
+  </data>
+  <data name="GroupBox_BuildSettings" xml:space="preserve">
+    <value>构建设置</value>
+  </data>
+  <data name="Status_Included" xml:space="preserve">
+    <value>已纳入</value>
+  </data>
+  <data name="Status_Discarded" xml:space="preserve">
+    <value>已丢弃</value>
+  </data>
+  <data name="Status_Unmatched" xml:space="preserve">
+    <value>未匹配</value>
+  </data>
+  <data name="Status_Conflict" xml:space="preserve">
+    <value>冲突</value>
+  </data>
+  <data name="Status_Pending" xml:space="preserve">
+    <value>待处理</value>
+  </data>
+  <data name="Status_Resolved" xml:space="preserve">
+    <value>已解决</value>
+  </data>
+  <data name="Badge_Included" xml:space="preserve">
+    <value>[已纳入]</value>
+  </data>
+  <data name="Badge_Discarded" xml:space="preserve">
+    <value>[已丢弃]</value>
+  </data>
+  <data name="Badge_Unmatched" xml:space="preserve">
+    <value>[未匹配]</value>
+  </data>
+  <data name="Badge_Conflict" xml:space="preserve">
+    <value>[冲突]</value>
+  </data>
+  <data name="Help_MappingReview" xml:space="preserve">
+    <value>用卡牌下拉框为未匹配的图片指定卡牌，或把不应进入最终 Mod 的资源丢弃。</value>
+  </data>
+  <data name="Help_BuildModPrompt" xml:space="preserve">
+    <value>解决冲突后，在这里构建最终的 Mod 产物。</value>
+  </data>
+  <data name="Help_NoConflicts" xml:space="preserve">
+    <value>当前会话没有 cardId 冲突。</value>
+  </data>
+  <data name="Help_ImportToBegin" xml:space="preserve">
+    <value>请导入一个或多个立绘 PCK 文件以开始审核。</value>
+  </data>
+  <data name="Info_GdreCache" xml:space="preserve">
+    <value>GDRE：{0} | 缓存：{1}</value>
+  </data>
+  <data name="Info_MainSummary" xml:space="preserve">
+    <value>包 {0} | 可见 {1} | 已纳入 {2} | 冲突 {3} | 未匹配 {4} | 已丢弃 {5} | 待处理分组 {6}</value>
+  </data>
+  <data name="Info_SessionPath" xml:space="preserve">
+    <value>会话：{0}</value>
+  </data>
+  <data name="Info_CandidateStatus" xml:space="preserve">
+    <value>状态：{0} | 卡牌：{1} | 分组：{2} | 包：{3}</value>
+  </data>
+  <data name="Info_CandidatePath" xml:space="preserve">
+    <value>路径：{0}</value>
+  </data>
+  <data name="Info_CandidateReason" xml:space="preserve">
+    <value>原因：{0}</value>
+  </data>
+  <data name="Info_ConflictSummary" xml:space="preserve">
+    <value>冲突 {0} | 待处理 {1} | 已解决 {2} | 已丢弃 {3}</value>
+  </data>
+  <data name="Info_GroupDetails" xml:space="preserve">
+    <value>cardId：{0} | 候选：{1} | 状态：{2}</value>
+  </data>
+  <data name="Info_CandidatePackage" xml:space="preserve">
+    <value>包：{0}</value>
+  </data>
+  <data name="Info_CandidateFile" xml:space="preserve">
+    <value>文件：{0}</value>
+  </data>
+  <data name="Info_CandidateConfidence" xml:space="preserve">
+    <value>置信度：{0:0.00}</value>
+  </data>
+  <data name="Info_ConflictCandidateCount" xml:space="preserve">
+    <value>{0} 个候选</value>
+  </data>
+  <data name="Status_ImportingPcks" xml:space="preserve">
+    <value>正在把 {0} 个 PCK 文件导入到 {1}</value>
+  </data>
+  <data name="Status_SkippingAlreadyImported" xml:space="preserve">
+    <value>跳过已导入的包：{0}</value>
+  </data>
+  <data name="Status_Recovering" xml:space="preserve">
+    <value>正在解包 {0}</value>
+  </data>
+  <data name="Status_Scanning" xml:space="preserve">
+    <value>正在扫描从 {0} 解包得到的图像</value>
+  </data>
+  <data name="Status_AnalyzingMappings" xml:space="preserve">
+    <value>正在分析 {0} 的映射候选</value>
+  </data>
+  <data name="Status_Merging" xml:space="preserve">
+    <value>正在把各包的分析结果合并为审核会话</value>
+  </data>
+  <data name="Status_ImportedCount" xml:space="preserve">
+    <value>已导入 {0} 个包 | 会话：{1}</value>
+  </data>
+  <data name="Status_ImportFailed" xml:space="preserve">
+    <value>导入失败：{0}</value>
+  </data>
+  <data name="Status_PreparingBuild" xml:space="preserve">
+    <value>正在准备 Mod 构建……</value>
+  </data>
+  <data name="Status_GeneratingSource" xml:space="preserve">
+    <value>正在生成缓存源码树</value>
+  </data>
+  <data name="Status_WritingReview" xml:space="preserve">
+    <value>正在写入审核后的映射数据</value>
+  </data>
+  <data name="Status_Materializing" xml:space="preserve">
+    <value>正在复制立绘并写入配置</value>
+  </data>
+  <data name="Status_BuildingFinal" xml:space="preserve">
+    <value>正在构建最终 Mod 产物</value>
+  </data>
+  <data name="Status_BuiltTo" xml:space="preserve">
+    <value>已把 Mod 构建到 {0}</value>
+  </data>
+  <data name="Status_BuildFailed" xml:space="preserve">
+    <value>构建失败。日志：{0}</value>
+  </data>
+  <data name="Status_BuildBlocked" xml:space="preserve">
+    <value>构建已阻断。请先解决 {0} 个待处理冲突分组。</value>
+  </data>
+  <data name="Status_GenerationCancelled" xml:space="preserve">
+    <value>已取消生成。还有 {0} 个未匹配资源需要审核。</value>
+  </data>
+  <data name="Dialog_ImportPckFilePicker_Title" xml:space="preserve">
+    <value>导入立绘 PCK</value>
+  </data>
+  <data name="Dialog_PckFileFilter" xml:space="preserve">
+    <value>PCK 文件 (*.pck)|*.pck|所有文件 (*.*)|*.*</value>
+  </data>
+  <data name="Dialog_ImportPck_Title" xml:space="preserve">
+    <value>导入 PCK</value>
+  </data>
+  <data name="Dialog_ImportPckFailed_Title" xml:space="preserve">
+    <value>导入 PCK 失败</value>
+  </data>
+  <data name="Dialog_Conflicts_Title" xml:space="preserve">
+    <value>冲突</value>
+  </data>
+  <data name="Dialog_BuildMod_Title" xml:space="preserve">
+    <value>构建 Mod</value>
+  </data>
+  <data name="Dialog_BuildModFailed_Title" xml:space="preserve">
+    <value>构建 Mod 失败</value>
+  </data>
+  <data name="Dialog_ResolveConflictsFirst_Title" xml:space="preserve">
+    <value>请先解决冲突</value>
+  </data>
+  <data name="Dialog_UnmatchedAssets_Title" xml:space="preserve">
+    <value>未匹配资源</value>
+  </data>
+  <data name="Error_GdreNotFound" xml:space="preserve">
+    <value>未找到 GDRETools。
+预期路径：
+{0}</value>
+  </data>
+  <data name="Error_ImportFirst" xml:space="preserve">
+    <value>请先导入并合并包。</value>
+  </data>
+  <data name="Error_ImportAndReviewFirst" xml:space="preserve">
+    <value>请先导入并审核立绘 PCK 包。</value>
+  </data>
+  <data name="Error_PendingConflicts" xml:space="preserve">
+    <value>仍有 {0} 个未解决的冲突分组。
+
+请先对每个冲突分组做出选择或丢弃，再构建 Mod。</value>
+  </data>
+  <data name="Warn_UnmatchedAssets" xml:space="preserve">
+    <value>有 {0} 个未匹配资源会在生成过程中被跳过。
+
+仍要继续吗？</value>
+  </data>
+  <data name="Error_ModIdRequired" xml:space="preserve">
+    <value>必须填写 Mod ID。</value>
+  </data>
+  <data name="Error_ArtifactDirRequired" xml:space="preserve">
+    <value>必须填写产物输出目录。</value>
+  </data>
+  <data name="Info_BuildSuccess" xml:space="preserve">
+    <value>Mod 产物：
+{0}
+
+构建日志：
+{1}</value>
+  </data>
+  <data name="Info_BuildFailedWithLog" xml:space="preserve">
+    <value>{0}
+
+构建日志：
+{1}</value>
+  </data>
+  <data name="Text_Unknown" xml:space="preserve">
+    <value>（未知）</value>
+  </data>
+  <data name="Text_None" xml:space="preserve">
+    <value>（无）</value>
+  </data>
+  <data name="Reason_DiscardedManual" xml:space="preserve">
+    <value>手动审核时丢弃。</value>
+  </data>
+  <data name="Reason_ManuallyAssigned" xml:space="preserve">
+    <value>在 GUI 中手动指定。</value>
+  </data>
+  <data name="Reason_DiscardedInConflict" xml:space="preserve">
+    <value>在冲突审核中丢弃。</value>
+  </data>
+  <data name="Default_UnknownAuthor" xml:space="preserve">
+    <value>未知作者</value>
+  </data>
+  <data name="Default_ModDescription" xml:space="preserve">
+    <value>生成的立绘替换 Mod</value>
+  </data>
+  <data name="Menu_File" xml:space="preserve">
+    <value>文件</value>
+  </data>
+  <data name="Menu_Build" xml:space="preserve">
+    <value>构建</value>
+  </data>
+  <data name="Menu_View" xml:space="preserve">
+    <value>视图</value>
+  </data>
+  <data name="Menu_File_Open" xml:space="preserve">
+    <value>打开文件...</value>
+  </data>
+  <data name="Menu_File_Exit" xml:space="preserve">
+    <value>退出</value>
+  </data>
+  <data name="Menu_Build_BuildMod" xml:space="preserve">
+    <value>构建 Mod</value>
+  </data>
+  <data name="Menu_View_Language" xml:space="preserve">
+    <value>语言</value>
+  </data>
+</root>

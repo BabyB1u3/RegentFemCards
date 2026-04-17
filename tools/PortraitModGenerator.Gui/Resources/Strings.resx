@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="MainForm_Title" xml:space="preserve">
+    <value>Portrait Mod Generator - Mapping Review</value>
+  </data>
+  <data name="BuildModForm_Title" xml:space="preserve">
+    <value>Build Mod</value>
+  </data>
+  <data name="ConflictReviewForm_Title" xml:space="preserve">
+    <value>Conflict Review</value>
+  </data>
+  <data name="Button_ImportPck" xml:space="preserve">
+    <value>Import PCK</value>
+  </data>
+  <data name="Button_OpenConflicts" xml:space="preserve">
+    <value>Open Conflicts</value>
+  </data>
+  <data name="Button_BuildMod" xml:space="preserve">
+    <value>Build Mod</value>
+  </data>
+  <data name="Button_UpdateMapping" xml:space="preserve">
+    <value>Update Mapping</value>
+  </data>
+  <data name="Button_NextPending" xml:space="preserve">
+    <value>Next Pending</value>
+  </data>
+  <data name="Button_Browse" xml:space="preserve">
+    <value>Browse</value>
+  </data>
+  <data name="Filter_All" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Filter_Included" xml:space="preserve">
+    <value>Included</value>
+  </data>
+  <data name="Filter_Conflict" xml:space="preserve">
+    <value>Conflict</value>
+  </data>
+  <data name="Filter_Unmatched" xml:space="preserve">
+    <value>Unmatched</value>
+  </data>
+  <data name="Filter_Discarded" xml:space="preserve">
+    <value>Discarded</value>
+  </data>
+  <data name="Filter_Pending" xml:space="preserve">
+    <value>Pending</value>
+  </data>
+  <data name="Filter_Resolved" xml:space="preserve">
+    <value>Resolved</value>
+  </data>
+  <data name="Label_Group" xml:space="preserve">
+    <value>Group:</value>
+  </data>
+  <data name="Label_Card" xml:space="preserve">
+    <value>Card:</value>
+  </data>
+  <data name="Label_ModId" xml:space="preserve">
+    <value>Mod ID:</value>
+  </data>
+  <data name="Label_ModName" xml:space="preserve">
+    <value>Mod Name:</value>
+  </data>
+  <data name="Label_Author" xml:space="preserve">
+    <value>Author:</value>
+  </data>
+  <data name="Label_Description" xml:space="preserve">
+    <value>Description:</value>
+  </data>
+  <data name="Label_ArtifactDir" xml:space="preserve">
+    <value>Artifact Dir:</value>
+  </data>
+  <data name="Label_NoConflicts" xml:space="preserve">
+    <value>No conflicts</value>
+  </data>
+  <data name="Label_NoConflictSelected" xml:space="preserve">
+    <value>No conflict selected</value>
+  </data>
+  <data name="Placeholder_SearchAssets" xml:space="preserve">
+    <value>Search file name or card id</value>
+  </data>
+  <data name="Checkbox_Discard" xml:space="preserve">
+    <value>Discard</value>
+  </data>
+  <data name="Checkbox_DiscardGroup" xml:space="preserve">
+    <value>Discard Group</value>
+  </data>
+  <data name="Checkbox_Choose" xml:space="preserve">
+    <value>Choose</value>
+  </data>
+  <data name="GroupBox_BuildSettings" xml:space="preserve">
+    <value>Build Settings</value>
+  </data>
+  <data name="Status_Included" xml:space="preserve">
+    <value>Included</value>
+  </data>
+  <data name="Status_Discarded" xml:space="preserve">
+    <value>Discarded</value>
+  </data>
+  <data name="Status_Unmatched" xml:space="preserve">
+    <value>Unmatched</value>
+  </data>
+  <data name="Status_Conflict" xml:space="preserve">
+    <value>Conflict</value>
+  </data>
+  <data name="Status_Pending" xml:space="preserve">
+    <value>Pending</value>
+  </data>
+  <data name="Status_Resolved" xml:space="preserve">
+    <value>Resolved</value>
+  </data>
+  <data name="Badge_Included" xml:space="preserve">
+    <value>[Included]</value>
+  </data>
+  <data name="Badge_Discarded" xml:space="preserve">
+    <value>[Discarded]</value>
+  </data>
+  <data name="Badge_Unmatched" xml:space="preserve">
+    <value>[Unmatched]</value>
+  </data>
+  <data name="Badge_Conflict" xml:space="preserve">
+    <value>[Conflict]</value>
+  </data>
+  <data name="Help_MappingReview" xml:space="preserve">
+    <value>Use the card dropdown to assign unmatched images, or discard assets that should not enter the final mod.</value>
+  </data>
+  <data name="Help_BuildModPrompt" xml:space="preserve">
+    <value>Resolve conflicts, then build the final mod output here.</value>
+  </data>
+  <data name="Help_NoConflicts" xml:space="preserve">
+    <value>This session currently has no cardId conflicts.</value>
+  </data>
+  <data name="Help_ImportToBegin" xml:space="preserve">
+    <value>Import one or more portrait PCK files to begin review.</value>
+  </data>
+  <data name="Info_GdreCache" xml:space="preserve">
+    <value>GDRE: {0} | Cache: {1}</value>
+  </data>
+  <data name="Info_MainSummary" xml:space="preserve">
+    <value>Packages {0} | Visible {1} | Included {2} | Conflict {3} | Unmatched {4} | Discarded {5} | Pending Groups {6}</value>
+  </data>
+  <data name="Info_SessionPath" xml:space="preserve">
+    <value>Session: {0}</value>
+  </data>
+  <data name="Info_CandidateStatus" xml:space="preserve">
+    <value>Status: {0} | Card: {1} | Group: {2} | Package: {3}</value>
+  </data>
+  <data name="Info_CandidatePath" xml:space="preserve">
+    <value>Path: {0}</value>
+  </data>
+  <data name="Info_CandidateReason" xml:space="preserve">
+    <value>Reason: {0}</value>
+  </data>
+  <data name="Info_ConflictSummary" xml:space="preserve">
+    <value>Conflicts {0} | Pending {1} | Resolved {2} | Discarded {3}</value>
+  </data>
+  <data name="Info_GroupDetails" xml:space="preserve">
+    <value>cardId: {0} | candidates: {1} | state: {2}</value>
+  </data>
+  <data name="Info_CandidatePackage" xml:space="preserve">
+    <value>Package: {0}</value>
+  </data>
+  <data name="Info_CandidateFile" xml:space="preserve">
+    <value>File: {0}</value>
+  </data>
+  <data name="Info_CandidateConfidence" xml:space="preserve">
+    <value>Confidence: {0:0.00}</value>
+  </data>
+  <data name="Info_ConflictCandidateCount" xml:space="preserve">
+    <value>{0} candidates</value>
+  </data>
+  <data name="Status_ImportingPcks" xml:space="preserve">
+    <value>Importing {0} PCK file(s) into {1}</value>
+  </data>
+  <data name="Status_SkippingAlreadyImported" xml:space="preserve">
+    <value>Skipping already imported package: {0}</value>
+  </data>
+  <data name="Status_Recovering" xml:space="preserve">
+    <value>Recovering {0}</value>
+  </data>
+  <data name="Status_Scanning" xml:space="preserve">
+    <value>Scanning extracted images from {0}</value>
+  </data>
+  <data name="Status_AnalyzingMappings" xml:space="preserve">
+    <value>Analyzing mapping candidates for {0}</value>
+  </data>
+  <data name="Status_Merging" xml:space="preserve">
+    <value>Merging package analyses into a review session</value>
+  </data>
+  <data name="Status_ImportedCount" xml:space="preserve">
+    <value>Imported {0} package(s) | Session: {1}</value>
+  </data>
+  <data name="Status_ImportFailed" xml:space="preserve">
+    <value>Import failed: {0}</value>
+  </data>
+  <data name="Status_PreparingBuild" xml:space="preserve">
+    <value>Preparing mod build...</value>
+  </data>
+  <data name="Status_GeneratingSource" xml:space="preserve">
+    <value>Generating cached source tree</value>
+  </data>
+  <data name="Status_WritingReview" xml:space="preserve">
+    <value>Writing reviewed mapping data</value>
+  </data>
+  <data name="Status_Materializing" xml:space="preserve">
+    <value>Materializing portraits and config</value>
+  </data>
+  <data name="Status_BuildingFinal" xml:space="preserve">
+    <value>Building final mod artifacts</value>
+  </data>
+  <data name="Status_BuiltTo" xml:space="preserve">
+    <value>Built mod to {0}</value>
+  </data>
+  <data name="Status_BuildFailed" xml:space="preserve">
+    <value>Build failed. Log: {0}</value>
+  </data>
+  <data name="Status_BuildBlocked" xml:space="preserve">
+    <value>Build blocked. Resolve {0} pending conflict group(s) first.</value>
+  </data>
+  <data name="Status_GenerationCancelled" xml:space="preserve">
+    <value>Generation cancelled. {0} unmatched asset(s) still need review.</value>
+  </data>
+  <data name="Dialog_ImportPckFilePicker_Title" xml:space="preserve">
+    <value>Import portrait PCK</value>
+  </data>
+  <data name="Dialog_PckFileFilter" xml:space="preserve">
+    <value>PCK files (*.pck)|*.pck|All files (*.*)|*.*</value>
+  </data>
+  <data name="Dialog_ImportPck_Title" xml:space="preserve">
+    <value>Import PCK</value>
+  </data>
+  <data name="Dialog_ImportPckFailed_Title" xml:space="preserve">
+    <value>Import PCK failed</value>
+  </data>
+  <data name="Dialog_Conflicts_Title" xml:space="preserve">
+    <value>Conflicts</value>
+  </data>
+  <data name="Dialog_BuildMod_Title" xml:space="preserve">
+    <value>Build mod</value>
+  </data>
+  <data name="Dialog_BuildModFailed_Title" xml:space="preserve">
+    <value>Build mod failed</value>
+  </data>
+  <data name="Dialog_ResolveConflictsFirst_Title" xml:space="preserve">
+    <value>Resolve conflicts first</value>
+  </data>
+  <data name="Dialog_UnmatchedAssets_Title" xml:space="preserve">
+    <value>Unmatched assets</value>
+  </data>
+  <data name="Error_GdreNotFound" xml:space="preserve">
+    <value>GDRETools was not found.
+Expected at:
+{0}</value>
+  </data>
+  <data name="Error_ImportFirst" xml:space="preserve">
+    <value>Import and merge packages first.</value>
+  </data>
+  <data name="Error_ImportAndReviewFirst" xml:space="preserve">
+    <value>Import and review portrait PCK packages first.</value>
+  </data>
+  <data name="Error_PendingConflicts" xml:space="preserve">
+    <value>There are {0} unresolved conflict group(s).
+
+Resolve or discard every conflict group before building the mod.</value>
+  </data>
+  <data name="Warn_UnmatchedAssets" xml:space="preserve">
+    <value>There are {0} unmatched asset(s) that will be skipped during generation.
+
+Do you want to continue anyway?</value>
+  </data>
+  <data name="Error_ModIdRequired" xml:space="preserve">
+    <value>Mod ID is required.</value>
+  </data>
+  <data name="Error_ArtifactDirRequired" xml:space="preserve">
+    <value>Artifact output directory is required.</value>
+  </data>
+  <data name="Info_BuildSuccess" xml:space="preserve">
+    <value>Built mod output:
+{0}
+
+Build log:
+{1}</value>
+  </data>
+  <data name="Info_BuildFailedWithLog" xml:space="preserve">
+    <value>{0}
+
+Build log:
+{1}</value>
+  </data>
+  <data name="Text_Unknown" xml:space="preserve">
+    <value>(unknown)</value>
+  </data>
+  <data name="Text_None" xml:space="preserve">
+    <value>(none)</value>
+  </data>
+  <data name="Reason_DiscardedManual" xml:space="preserve">
+    <value>Discarded during manual review.</value>
+  </data>
+  <data name="Reason_ManuallyAssigned" xml:space="preserve">
+    <value>Manually assigned in GUI.</value>
+  </data>
+  <data name="Reason_DiscardedInConflict" xml:space="preserve">
+    <value>Discarded in conflicts review.</value>
+  </data>
+  <data name="Default_UnknownAuthor" xml:space="preserve">
+    <value>Unknown Author</value>
+  </data>
+  <data name="Default_ModDescription" xml:space="preserve">
+    <value>Generated portrait replacement mod</value>
+  </data>
+  <data name="Menu_File" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="Menu_Build" xml:space="preserve">
+    <value>Build</value>
+  </data>
+  <data name="Menu_View" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="Menu_File_Open" xml:space="preserve">
+    <value>Open File...</value>
+  </data>
+  <data name="Menu_File_Exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="Menu_Build_BuildMod" xml:space="preserve">
+    <value>Build Mod</value>
+  </data>
+  <data name="Menu_View_Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+</root>
