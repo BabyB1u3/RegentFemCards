@@ -11,6 +11,8 @@
 - 会话级合并：多个包中匹配到同一 `cardId` 的候选会自动归入冲突组。
 - 主映射界面用于查看候选、手动改派 `cardId`、或丢弃噪声资源。
 - 冲突界面用于在多个候选之间为每一个争议 `cardId` 选出最终来源。
+- 高级设置窗口：对单张卡另行指定 `uiMode`、`frame`、`bannerTexture` 等模板可选字段，保存后随 `card_replacements.json` 一起产出。
+- 顶部菜单栏集成常用操作，支持在"视图 → 语言"中运行时切换中文 / English。
 - 构建界面填写 Mod 元信息后，自动完成模板实例化、复制图片、写入 `card_replacements.json`，并调用 `dotnet build` 输出最终 Mod 产物。
 
 ## 截图
@@ -23,6 +25,10 @@
 
 ![Conflict Review](docs/images/conflict_window.png)
 
+高级设置窗口，用于为当前选中的卡额外填写 `uiMode`、`frame` 等可选字段：
+
+![Advanced Settings](docs/images/advance_window.png)
+
 构建界面（Build Mod），用于填写 Mod 元信息并触发最终构建：
 
 ![Build Mod](docs/images/build_window.png)
@@ -32,8 +38,9 @@
 1. 启动 [PortraitModGenerator.Gui](tools/PortraitModGenerator.Gui/)。
 2. 点击 **Import PCK**（或把 `.pck` 拖到窗口中）将包加入当前会话，每个包都会独立完成 recover、scan、analyze。
 3. 在主映射界面里逐项确认候选：保留自动匹配、为未匹配资源手动指定 `cardId`、把无关资源标记为 discarded。
-4. 点击 **Open Conflicts**，处理多个包对同一 `cardId` 都给出候选的情况；每组冲突有一个默认选中项，可手动改写。
-5. 点击 **Build Mod**，填写 Mod 元信息（id、name、author、description）和产物输出目录，再点 **Build Mod** 生成最终的 `.dll` / `.json` / `.pck`。
+4. 如需调整单张卡的边框 / 横幅 / uiMode 等，点详情面板里的 **高级设置...**，把对应 `res://...` 路径填入即可；留空的字段不会写入产物。
+5. 点击 **Open Conflicts**，处理多个包对同一 `cardId` 都给出候选的情况；每组冲突有一个默认选中项，可手动改写。
+6. 点击 **Build Mod**，填写 Mod 元信息（id、name、author、description）和产物输出目录，再点 **Build Mod** 生成最终的 `.dll` / `.json` / `.pck`。
 
 ## 仓库结构
 
